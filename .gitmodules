@@ -1,0 +1,9 @@
+[submodule "third_party/glfw"]
+	path = third_party/glfw
+	url = git@github.com:lttlflla/glfw.git
+[submodule "third_party/vectormath"]
+	path = third_party/vectormath
+	url = git@github.com:lttlflla/vectormath.git
+[submodule "third_party/imgui"]
+	path = third_party/imgui
+	url = git@github.com:lttlflla/imgui.git
