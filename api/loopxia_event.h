@@ -1,3 +1,7 @@
+#include <vector>
+#include <functional>
+#include <memory>
+
 namespace loopxia
 {
     namespace event
@@ -34,8 +38,8 @@ namespace loopxia
             virtual void ClearCallbacks() = 0;
         };
 
-        void PostEvent(const Event& evt);
-        bool PollEvent(const Event& evt);
+        void PostEvent(const Event* evt);
+        bool PollEvent(const Event* evt);
         void RunEvent();
 
         EventHandler CreateEventHandler(const EventDescriptor& descriptor);

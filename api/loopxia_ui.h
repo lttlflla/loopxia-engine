@@ -8,17 +8,18 @@ namespace loopxia
         class UI
         {
         public:
+            virtual ~UI() {};
             virtual void Show() = 0;
             virtual void Hide() = 0;
-            virtual void SetPosition() = 0;
-            virtual UI* Parent() = 0;
+            //virtual void SetPosition() = 0;
+           // virtual UI* Parent() = 0;
         };
 
         class Layout
         {
         public:
             virtual void ReadLayout() = 0;
-            virtual void Layout() = 0;
+            virtual void DoLayout() = 0;
         };
 
         class Window : public UI
@@ -45,7 +46,7 @@ namespace loopxia
 
         void Init();
 
-        Window* CreateWindow(const std::string& title);
+        Window* CreateUIWindow(const std::string& title);
         
     }
 }

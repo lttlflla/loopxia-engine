@@ -8,36 +8,57 @@
 
 namespace ui = loopxia::ui;
 
-namespace ui
+namespace loopxia
 {
-    class LoopxiaWindow : public Window
+    namespace ui
     {
-    public:
-        LoopxiaWindow(const std::string& title)
+
+        class LoopxiaWindow : public Window
         {
-            // Init window
-            m_pWindow = SDL_CreateWindow(title, 640, 480, SDL_WINDOW_OPENGL);
+        public:
+            LoopxiaWindow(const std::string& title)
+            {
+                // Init window
+                m_pWindow = SDL_CreateWindow(title.c_str(), 640, 480, SDL_WINDOW_OPENGL);
 
-            // Init OpenGL context
-            SDL_GLContext glcontext = SDL_GL_CreateContext(m_pWindow);
+                // Init OpenGL context
+                m_glContext = SDL_GL_CreateContext(m_pWindow);
+            }            
+
+            ~LoopxiaWindow()
+            {
+                SDL_GL_DeleteContext(m_glContext);
+            }
+
+            void Show() override
+            {
+
+            }
+
+            void Hide() override
+            {
+
+            }
+        private:
+            SDL_Window* m_pWindow;
+            SDL_GLContext m_glContext;
+        };
+
+        Window* CreateUIWindow(const std::string& title)
+        {
+            return new LoopxiaWindow(title);
         }
-    private:
-        SDL_Window* m_pWindow;
-    };
 
-    Window* ui::CreateWindow(const std::string& title)
-    {
-        return new LoopxiaWindow(title);
+        void CreateLayout()
+        {
+
+        }
+
+        void Init()
+        {
+            SDL_Init(SDL_INIT_VIDEO);
+        }
     }
 
-    void CreateLayout()
-    {
-
-    }
-
-    void ui::Init()
-    {
-        SDL_Init(SDL_INIT_VIDEO);
-    }
 }
 

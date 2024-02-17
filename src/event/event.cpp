@@ -1,24 +1,37 @@
 #include <SDL_events.h>
+#include "loopxia_event.h"
 
 namespace loopxia
 {
     namespace event
     {
-        void RunEvent()
+        void PostEvent(const Event* evt)
+        {
+
+        }
+
+        void PollLoop()
         {
             // Process input events
-            SDL_Event evt;
-            while (SDL_PollEvent(&evt)) {
-                switch (evt.type) {
+            bool bCloseWindow = false;
 
-                case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+            while (!bCloseWindow)
+            {
+                SDL_Event evt;
+                while (SDL_PollEvent(&evt)) {
+                    switch (evt.type) {
 
-                    bCloseWindow = true;
-                    break;
+                    case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+                        // post close request event
+                        evt.window.windowID
+                        bCloseWindow = true;
+                        break;
+
+                    }
 
                 }
-
             }
+            
         }
     }
 }
