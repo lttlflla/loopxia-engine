@@ -1,4 +1,4 @@
-#include "loopxia_math.h"
+#include "loopxia/math.h"
 #include <string>
 
 namespace loopxia
@@ -41,10 +41,6 @@ namespace loopxia
         {
 
         };
-
-
-
-        void Init();
 
         Window* CreateUIWindow(const std::string& title);
         

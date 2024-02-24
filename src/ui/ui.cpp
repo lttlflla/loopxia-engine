@@ -1,5 +1,5 @@
 
-#include "loopxia_ui.h"
+#include "loopxia/ui.h"
 
 // OpenGL functionality required
 #include <SDL.h>
@@ -52,11 +52,6 @@ namespace loopxia
         void CreateLayout()
         {
 
-        }
-
-        void Init()
-        {
-            SDL_Init(SDL_INIT_VIDEO);
         }
     }
 

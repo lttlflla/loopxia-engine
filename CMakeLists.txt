@@ -31,15 +31,19 @@ endif()
 
 #set exe type to be windowed
 if(MSVC)
-    
-     set_target_properties(loopxia-engine PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-
+  set_target_properties(loopxia-engine PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
 endif()
 
 project ("loopxia-engine")
 
+set(LOOPXIA_INCLUDE_DIR "include/loopxia")
+
 # Add source to this project's executable.
-add_executable (loopxia-engine "src/test.cpp" )
+add_executable (loopxia-engine "src/test.cpp" 
+"src/loopxia.cpp" 
+"${LOOPXIA_INCLUDE_DIR}/object/object.h" 
+"${LOOPXIA_INCLUDE_DIR}/object/gameobject.h" 
+"${LOOPXIA_INCLUDE_DIR}/object/script.h" "include/loopxia/object/scriptable_object.h" "include/loopxia/time.h")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET loopxia-engine PROPERTY CXX_STANDARD 20)
@@ -56,19 +60,25 @@ file(GLOB_RECURSE LOOPXIA_ENGINE_HEADER_CONFIG CONFIGURE_DEPENDS "${CMAKE_CURREN
 file(GLOB_RECURSE LOOPXIA_ENGINE_HEADER_EDITOR CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/editor/*.h")
 file(GLOB_RECURSE LOOPXIA_ENGINE_HEADER_TEST CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/test/*.h")
 
-file(GLOB_RECURSE LOOPXIA_ENGINE_API CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/api/*.h")
-
-
+file(GLOB_RECURSE LOOPXIA_ENGINE_API CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/include/loopxia/*.h")
 
 target_sources(loopxia-engine PRIVATE 
-	"${LOOPXIA_ENGINE_HEADER_CONFIG}" "${LOOPXIA_ENGINE_SOURCES_CONFIG}" "${LOOPXIA_ENGINE_SOURCES_EVENT}" "${LOOPXIA_ENGINE_SOURCES_UI}" "${LOOPXIA_ENGINE_HEADER_EDITOR}" "${LOOPXIA_ENGINE_SOURCES_EDITOR}" "${LOOPXIA_ENGINE_HEADER_TEST}" "${LOOPXIA_ENGINE_SOURCES_TEST}")
+"${LOOPXIA_ENGINE_HEADER_CONFIG}"
+"${LOOPXIA_ENGINE_SOURCES_CONFIG}"
+"${LOOPXIA_ENGINE_SOURCES_EVENT}"
+"${LOOPXIA_ENGINE_SOURCES_UI}"
+"${LOOPXIA_ENGINE_HEADER_EDITOR}"
+"${LOOPXIA_ENGINE_SOURCES_EDITOR}"
+"${LOOPXIA_ENGINE_HEADER_TEST}"
+"${LOOPXIA_ENGINE_SOURCES_TEST}")
 
 target_include_directories(loopxia-engine PUBLIC
-                           "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/api>"
-                            "$<INSTALL_INTERFACE:api>" )
+                           "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+                            "$<INSTALL_INTERFACE:include>")
                             
 set(VECTORMATH_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/vectormath)
 target_include_directories(loopxia-engine PRIVATE "${VECTORMATH_DIR}" )
+
 target_precompile_headers(loopxia-engine
   PUBLIC
     ${VECTORMATH_DIR}/vectormath.hpp

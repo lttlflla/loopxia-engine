@@ -1,0 +1,8 @@
+
+namespace loopxia
+{
+    class GameTime
+    {
+
+    };
+}

@@ -1,7 +1,7 @@
 // loopxia-engine.cpp : Defines the entry point for the application.
 //
 
-#include "loopxia.h"
+#include "loopxia/loopxia.h"
 //#include <GLFW/glfw3.h>
 
 #include <iostream>
@@ -13,6 +13,7 @@ int main()
 {
     cout << "Hello CMake." << endl;
 
+    InitEngine();
     //if (!glfwInit()) {
     //    // write to file failed
     //}
@@ -24,8 +25,9 @@ int main()
 
     auto pWindow = ui::CreateUIWindow("test");
     
-    event::RunEvent();
-
+    event::RunEventPoller();
+    
+    ShutdownEngine();
     //bool bCloseWindow = false;
     //// App loop
     //while (!bCloseWindow)
