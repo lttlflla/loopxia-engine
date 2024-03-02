@@ -1,18 +1,37 @@
-#include "script.h"
+#pragma once
+
+#include "loopxia/object/scriptable_object.h"
+#include "loopxia/object/transform.h"
+#include "loopxia/math.h"
+#include <vector>
+
 namespace loopxia
 {
+    namespace impl
+    {
+        class GameObjectImpl;
+    }
+
     class GameObject : ScriptableObject
     {
+        friend class impl::GameObjectImpl;
+    public:
+        GameObject(GameObject* parent);
+        ~GameObject();
 
-        // transform of object
-        private Transform _transform;
+        GameObject* Parent();
+        void SetParent(GameObject* parent);
 
-        // hierarchy parenting
-        private GameObject _parent;
-        public GameObject()
-        {
-        }
+        loopxia::Transform& Transform();
 
-        public Vector3 Position() { return _transform.Position(); }
-    }
+        std::vector<GameObject*> Children();
+
+    protected:
+        void AddChild(GameObject* obj);
+        void RemoveChild(GameObject* obj);
+
+    private:
+        impl::GameObjectImpl* m_impl;
+
+    };
 }

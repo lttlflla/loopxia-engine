@@ -1,7 +1,10 @@
+#pragma once
+
 #include <vector>
 #include <functional>
 #include <memory>
 #include <map>
+#include <unordered_map>
 #include <variant>
 #include <chrono>
 
@@ -19,43 +22,6 @@ namespace loopxia
         struct WindowDetails
         {
             uint32_t windowId;
-        };
-
-        union EventDetails
-        {
-            WindowDetails window;
-            char data[128];
-        };
-
-        class EventConnection;
-
-        template <class ... args>
-        struct EventSignal
-        {
-            typedef callback std::function<bool(args)>;
-            static EventConnection connect(callback& callback)
-            {
-            }
-
-            static EventConnection connect(int priority, callback& callback)
-            {
-                return {};
-            }
-
-            static EventConnection connect(int priority, int sourceId, callback& callback)
-            {
-                return {};
-            }
-
-            static void disconnect(EventConnection& connection)
-            {
-            }
-
-            static void Signal(args)
-            {
-            }
-
-            std::multiset
         };
 
 
@@ -107,6 +73,116 @@ namespace loopxia
             checkConnectedFunc m_checkConnected;
         };
 
+        template <class ... Args>
+        class EventSignal
+        {
+        public:
+            typedef std::function<bool(Args...)> Slot;
+
+            struct SlotEntry
+            {
+                Slot slot;
+                int priority;
+                int slotId;
+            };
+
+            struct SlotEntryHash
+            {
+                std::size_t operator()(const SlotEntry& c) const
+                {
+                    return c.slotId;
+                }
+            };
+
+            bool CmpSlotEntry(SlotEntry const& lhs, SlotEntry const& rhs)
+            {
+                return lhs.slotId < rhs.slotId;
+            }
+
+            EventConnection connect(Slot const& callback)
+            {
+                const int defaultPriority = 100;
+                SlotEntry entry;
+                entry.slot = callback;
+                entry.slotId = _GenerateNextSlotId();
+                entry.priority = defaultPriority;
+                m_callbacks.insert(std::pair{defaultPriority, entry});
+                return GenerateEventConnection(entry.slotId);
+            }
+
+            EventConnection connect(int priority, Slot const& callback)
+            {
+                SlotEntry entry;
+                entry.slot = callback;
+                entry.slotId = _GenerateNextSlotId();
+                entry.priority = priority;
+                m_callbacks.insert(std::pair{priority, entry});
+                return GenerateEventConnection(entry.slotId);
+            }
+
+            EventConnection connect(int priority, int sourceId, Slot const& callback)
+            {
+                SlotEntry entry;
+                entry.slot = callback;
+                entry.slotId = _GenerateNextSlotId();
+                entry.priority = priority;
+                m_callbacks.insert(std::pair{priority, entry});
+                return GenerateEventConnection(entry.slotId);
+            }
+
+            void Signal(Args... args)
+            {
+                for (auto& c : m_callbacks) {
+                    c.second.slot(args...);
+                }
+            }
+
+            private:
+                // map of priority to slot entry
+                std::multimap<int, SlotEntry> m_callbacks;
+
+                // map of slot id to slot entry
+                std::unordered_map<int, SlotEntry> m_disconnectedCallbacks;
+                int m_nextSlotId = 0;
+
+                int _GenerateNextSlotId()
+                {
+                    return ++m_nextSlotId;
+                }
+
+                void _Reconnect(int slotId)
+                {
+                    auto it = m_disconnectedCallbacks.find(slotId);
+                    if (it != m_disconnectedCallbacks.end()) {
+                        auto entry = it->second;
+                        m_disconnectedCallbacks.erase(it);
+                        m_callbacks.insert(std::pair{entry.priority, entry});
+                    }
+                }
+                
+                void _Disconnect(int slotId)
+                {
+                }
+
+                bool _IsConnected(int slotId)
+                {
+                    return false;
+                }
+
+                void _Destroy(int slotId)
+                {
+                }
+
+                EventConnection GenerateEventConnection(int slotId)
+                {
+                    auto connectFunc = std::bind(&EventSignal<Args...>::_Reconnect, this, slotId);
+                    auto disconnectFunc = std::bind(&EventSignal<Args...>::_Disconnect, this, slotId);
+                    auto destroyFunc = std::bind(&EventSignal<Args...>::_Destroy, this, slotId);
+                    auto checkFunc = std::bind(&EventSignal<Args...>::_IsConnected, this, slotId);
+                    return EventConnection(connectFunc, disconnectFunc, destroyFunc, checkFunc);
+                }
+        };
+
         struct Event
         {
             Event()
@@ -118,12 +194,11 @@ namespace loopxia
 
         void PostEvent(const Event& evt);
         bool HasEvent();
-        bool PollEvent(Event& evt);
+        bool PollEvent();
         bool ProbeEvent(Event& evt);
-        void RunEventPoller();
 
         // predefined events
-        EventSignal<Event, WindowDetails> WindowQuitRequest;
+        extern EventSignal<Event&, WindowDetails&> WindowQuitRequest;
 
     }
 }

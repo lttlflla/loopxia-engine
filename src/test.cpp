@@ -8,6 +8,29 @@
 
 using namespace std;
 using namespace loopxia;
+using namespace loopxia::event;
+
+
+void RunEventPoller()
+{
+    // Process input events
+    bool bCloseWindow = false;
+
+    auto  f = [&bCloseWindow](Event& evt, WindowDetails& details) -> bool {
+        bCloseWindow = true;
+        return true;
+    };
+
+    event::WindowQuitRequest.connect(f);
+
+    while (!bCloseWindow)
+    {
+        while (event::PollEvent()) {
+
+        }
+    }
+
+}
 
 int main()
 {
@@ -25,7 +48,7 @@ int main()
 
     auto pWindow = ui::CreateUIWindow("test");
     
-    event::RunEventPoller();
+    RunEventPoller();
     
     ShutdownEngine();
     //bool bCloseWindow = false;

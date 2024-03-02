@@ -1,18 +1,35 @@
+#pragma once
+
 #include "loopxia/object/object.h"
+#include "loopxia/time.h"
 #include <chrono>
 #include <vector>
 
 namespace loopxia
 {
-    class Script : Object
+    namespace impl
     {
-        protected std::vector<ScriptAction> _scriptActions;
-        public void ScriptRun(GameTime gameTime)
-        {
-            foreach(var script in _scriptActions)
-            {
-                script.Update(gameTime);
-            }
-        }
+        class ScriptActionImpl;
+        class ScriptImpl;
     }
+
+    class ScriptAction
+    {
+    public:
+        ScriptAction();
+
+        void Update(GameTime gameTime);
+
+    protected:
+        impl::ScriptActionImpl* m_impl;
+    };
+
+    class Script : public Object
+    {
+    public:
+        void ScriptRun(GameTime gameTime);
+
+    protected:
+        impl::ScriptImpl* m_impl;
+    };
 }

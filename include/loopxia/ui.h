@@ -1,3 +1,5 @@
+#pragma once
+
 #include "loopxia/math.h"
 #include <string>
 

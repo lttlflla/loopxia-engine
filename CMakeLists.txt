@@ -20,9 +20,10 @@ set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) #under no circumstance we want this to happen so please cmake DON'T compile my project using shared libs
 
 #add third party libraries
-add_subdirectory(third_party/glfw)
+#add_subdirectory(third_party/glfw)
 #add_subdirectory(third_party/imgui)
 add_subdirectory(third_party/SDL)
+add_subdirectory(third_party/glm)
 
 
 if(MSVC)
@@ -43,7 +44,7 @@ add_executable (loopxia-engine "src/test.cpp"
 "src/loopxia.cpp" 
 "${LOOPXIA_INCLUDE_DIR}/object/object.h" 
 "${LOOPXIA_INCLUDE_DIR}/object/gameobject.h" 
-"${LOOPXIA_INCLUDE_DIR}/object/script.h" "include/loopxia/object/scriptable_object.h" "include/loopxia/time.h")
+"${LOOPXIA_INCLUDE_DIR}/object/script.h" "include/loopxia/object/scriptable_object.h" "include/loopxia/time.h" "include/loopxia/object/transform.h" "src/object/transform.cpp" "src/object/transform_manager.h" "src/object/gameobject.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET loopxia-engine PROPERTY CXX_STANDARD 20)
@@ -76,14 +77,14 @@ target_include_directories(loopxia-engine PUBLIC
                            "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
                             "$<INSTALL_INTERFACE:include>")
                             
-set(VECTORMATH_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/vectormath)
-target_include_directories(loopxia-engine PRIVATE "${VECTORMATH_DIR}" )
+#set(VECTORMATH_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/vectormath)
+#target_include_directories(loopxia-engine PRIVATE "${VECTORMATH_DIR}" )
 
 target_precompile_headers(loopxia-engine
   PUBLIC
-    ${VECTORMATH_DIR}/vectormath.hpp
+   ${LOOPXIA_INCLUDE_DIR}/math.h
   PRIVATE
 )
 
-target_link_libraries(loopxia-engine PRIVATE SDL3-static)
+target_link_libraries(loopxia-engine PRIVATE SDL3-static glm)
 
