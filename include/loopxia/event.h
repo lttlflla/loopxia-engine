@@ -162,15 +162,28 @@ namespace loopxia
                 
                 void _Disconnect(int slotId)
                 {
+                    auto matchSlot = [slotId](auto const& i) { return i.second.slotId == slotId; };
+                    auto it = std::find_if(m_callbacks.begin(), m_callbacks.end(), matchSlot);
+                    if (it != m_callbacks.end()) {
+                        m_disconnectedCallbacks.insert(std::pair{it->second.slotId, it->second});
+                        m_callbacks.erase(it);
+                    }
                 }
 
                 bool _IsConnected(int slotId)
                 {
-                    return false;
+                    auto matchSlot = [slotId](auto const& i) { return i.second.slotId == slotId; };
+                    auto it = std::find_if(m_callbacks.begin(), m_callbacks.end(), matchSlot);
+                    return it != m_callbacks.end();
                 }
 
                 void _Destroy(int slotId)
                 {
+                    auto matchSlot = [slotId](auto const& i) { return i.second.slotId == slotId; };
+                    auto it = std::find_if(m_callbacks.begin(), m_callbacks.end(), matchSlot);
+                    if (it != m_callbacks.end()) {
+                        m_callbacks.erase(it);
+                    }
                 }
 
                 EventConnection GenerateEventConnection(int slotId)

@@ -3,12 +3,53 @@
 
 #include "loopxia/loopxia.h"
 //#include <GLFW/glfw3.h>
-
+#include "loopxia/render/shader.h"
+#include "loopxia/render/render_buffer.h"
+#include <GL/glew.h>
 #include <iostream>
 
 using namespace std;
 using namespace loopxia;
 using namespace loopxia::event;
+
+
+loopxia::Shader* gShader;
+loopxia::Window* gWindow;
+RenderBuffer gVertexBuffer;
+RenderBuffer gIndexBuffer;
+
+GLint gVertexPos2DLocation = -1;
+GLuint gVBO = 0;
+GLuint gIBO = 0;
+
+void render()
+{
+    //Clear color buffer
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    //Render quad
+    // bind the shader program
+    gShader->Begin();
+
+    auto attribute = gShader->GetAttribute("LVertexPos2D");
+    //Enable vertex position
+    glEnableVertexAttribArray(attribute);
+
+    //Set vertex data
+    gVertexBuffer.Bind();
+    
+    glVertexAttribPointer(attribute, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), NULL);
+
+    //Set index data and render
+    gIndexBuffer.Bind();
+    glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_INT, NULL);
+
+    //Disable vertex position
+    glDisableVertexAttribArray(attribute);
+
+    //Unbind program
+    gShader->End();
+}
 
 
 void RunEventPoller()
@@ -26,15 +67,67 @@ void RunEventPoller()
     while (!bCloseWindow)
     {
         while (event::PollEvent()) {
+            LogError("");
+        }
 
+        render();
+
+        if (gWindow) {
+            gWindow->Swap();
         }
     }
 
 }
 
+void PrintRenderers()
+{
+    auto numRenderDrivers = SDL_GetNumRenderDrivers();
+    LogDebug("Renderer List");
+    for (int i = 0; i < numRenderDrivers; ++i) {
+        LogDebug(std::format("{}. {}", i, SDL_GetRenderDriver(i)));
+    }
+}
+
+
+void initVertices()
+{
+    //VBO data
+    GLfloat vertexData[] =
+    {
+        -0.5f, -0.5f,
+         0.5f, -0.5f,
+         0.5f,  0.5f,
+        -0.5f,  0.5f
+    };
+
+    //IBO data
+    GLuint indexData[] = { 0, 1, 2, 3 };
+
+    //Create VBO
+    glGenBuffers(1, &gVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, gVBO);
+    glBufferData(GL_ARRAY_BUFFER, 2 * 4 * sizeof(GLfloat), vertexData, GL_STATIC_DRAW);
+
+    //Create IBO
+    glGenBuffers(1, &gIBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), indexData, GL_STATIC_DRAW);
+}
+
+void InitGLEW()
+{
+    GLenum glewError = glewInit();
+    if (glewError != GLEW_OK)
+    {
+        LogError(std::format("Error initializing GLEW! {}\n", (char*)glewGetErrorString(glewError)));
+    }
+    
+}
+
 int main()
 {
     cout << "Hello CMake." << endl;
+    PrintRenderers();
 
     InitEngine();
     //if (!glfwInit()) {
@@ -46,8 +139,32 @@ int main()
 
     //glfwMakeContextCurrent(context.wind);
 
-    auto pWindow = ui::CreateUIWindow("test");
+    gWindow = CreateUIWindow("test");
     
+    InitGLEW();
+    initVertices();
+
+    gShader = new Shader();
+    gShader->Load("#version 140\nout vec4 LFragment; void main() { LFragment = vec4( 1.0, 1.0, 1.0, 1.0 ); }", Shader::ShaderType::FRAGMENT);
+    gShader->Load("#version 140\nin vec2 LVertexPos2D; void main() { gl_Position = vec4( LVertexPos2D.x, LVertexPos2D.y, 0, 1 ); }", Shader::ShaderType::VERTEX);
+    gShader->Link();
+
+    //VBO data
+    GLfloat vertexData[] =
+    {
+        -0.5f, -0.5f,
+         0.5f, -0.5f,
+         0.5f,  0.5f,
+        -0.5f,  0.5f
+    };
+
+    //IBO data
+    GLuint indexData[] = { 0, 1, 2, 3 };
+    
+    gVertexBuffer.SetData(RenderBufferDataType::VERTEX_BUFFER, vertexData, 2 * 4 * sizeof(GLfloat));
+
+    gIndexBuffer.SetData(RenderBufferDataType::INDEX_BUFFER, indexData, 4 * sizeof(GLuint));
+
     RunEventPoller();
     
     ShutdownEngine();

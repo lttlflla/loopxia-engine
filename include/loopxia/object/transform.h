@@ -2,8 +2,6 @@
 
 #include "loopxia/math.h"
 
-using namespace loopxia::math;
-
 namespace loopxia
 {
     namespace impl

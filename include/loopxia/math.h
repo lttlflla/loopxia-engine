@@ -6,9 +6,6 @@
 
 namespace loopxia
 {
-    namespace math
-    {
-        using Vector3 = glm::dvec3;
-        using Quaternion = glm::qua<double, glm::defaultp>;
-    }
+    using Vector3 = glm::dvec3;
+    using Quaternion = glm::qua<double, glm::defaultp>;
 }

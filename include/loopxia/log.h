@@ -2,11 +2,12 @@
 
 namespace loopxia
 {
-    namespace log
+    namespace impl
     {
-        void Init(const std::string& outputFile = "");
-
-        void LogDebug(std::string& str);
-        void LogInfo(std::string& str);
+        class LoggerImpl;
     }
+
+    void LogDebug(const std::string& str);
+    void LogInfo(const std::string& str);
+    void LogError(const std::string& str);
 }

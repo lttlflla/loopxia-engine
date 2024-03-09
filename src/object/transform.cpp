@@ -1,8 +1,6 @@
 #include "loopxia/object/transform.h"
 #include "loopxia/object/gameobject.h"
 
-using namespace loopxia::math;
-
 namespace loopxia
 {
     namespace impl

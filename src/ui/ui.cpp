@@ -6,53 +6,88 @@
 #include <SDL_opengl.h>
 #include <SDL_events.h>
 
-namespace ui = loopxia::ui;
-
 namespace loopxia
 {
-    namespace ui
+    namespace impl
     {
-
-        class LoopxiaWindow : public Window
+        class WindowImpl
         {
         public:
-            LoopxiaWindow(const std::string& title)
+            WindowImpl(const std::string& title)
             {
-                // Init window
                 m_pWindow = SDL_CreateWindow(title.c_str(), 640, 480, SDL_WINDOW_OPENGL);
-
-                // Init OpenGL context
                 m_glContext = SDL_GL_CreateContext(m_pWindow);
-            }            
-
-            ~LoopxiaWindow()
-            {
-                SDL_GL_DeleteContext(m_glContext);
             }
 
-            void Show() override
+            ~WindowImpl()
             {
-
+                SDL_DestroyWindow(m_pWindow);
             }
 
-            void Hide() override
+            void* GetNativeHandle()
             {
-
+                return m_pWindow;
             }
-        private:
+
+            void Show()
+            {
+                SDL_ShowWindow(m_pWindow);
+            }
+
+            void Hide()
+            {
+                SDL_HideWindow(m_pWindow);
+            }
+
+            void Swap()
+            {
+                SDL_GL_SwapWindow(m_pWindow);
+            }
+
+        protected:
             SDL_Window* m_pWindow;
             SDL_GLContext m_glContext;
         };
+    }
 
-        Window* CreateUIWindow(const std::string& title)
-        {
-            return new LoopxiaWindow(title);
-        }
+    Window::Window(const std::string& title)
+    {
+        m_impl = new impl::WindowImpl(title);
+    }
 
-        void CreateLayout()
-        {
+    Window::~Window()
+    {
+        delete m_impl;
+    }
 
-        }
+    void* Window::GetNativeHandle()
+    {
+        return m_impl->GetNativeHandle();
+    }
+
+    void Window::Show()
+    {
+        m_impl->Show();
+    }
+
+    void Window::Hide()
+    {
+        m_impl->Hide();
+    }
+
+    void Window::Swap()
+    {
+        m_impl->Swap();
+    }
+
+    Window* CreateUIWindow(const std::string& title)
+    {
+        return new Window(title);
+    }
+
+    void CreateLayout()
+    {
+
     }
 
 }
