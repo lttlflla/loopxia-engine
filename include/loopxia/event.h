@@ -212,6 +212,6 @@ namespace loopxia
 
         // predefined events
         extern EventSignal<Event&, WindowDetails&> WindowQuitRequest;
-
+        extern EventSignal<Event&, WindowDetails&, int, int> WindowResize;
     }
 }

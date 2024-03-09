@@ -1,4 +1,5 @@
 #include "loopxia/log.h"
+#include <iostream>
 
 #ifdef LOOPXIA_PLATFORM_WINDOWS
 #include <windows.h>
@@ -40,6 +41,7 @@ namespace loopxia
 #ifdef LOOPXIA_PLATFORM_WINDOWS
         OutputDebugString(strCopy.c_str() );
 #endif
+        std::cout << strCopy;
     }
 
     void LogInfo(const std::string& str)
@@ -51,6 +53,7 @@ namespace loopxia
 #ifdef LOOPXIA_PLATFORM_WINDOWS
         OutputDebugString(strCopy.c_str());
 #endif
+        std::cout << strCopy;
     }
 
     void LogError(const std::string& str)
@@ -62,5 +65,6 @@ namespace loopxia
 #ifdef LOOPXIA_PLATFORM_WINDOWS
         OutputDebugString(strCopy.c_str());
 #endif
+        std::cout << strCopy;
     }
 }

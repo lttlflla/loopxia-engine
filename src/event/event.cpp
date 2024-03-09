@@ -6,6 +6,7 @@ namespace loopxia
     {
         // declare extern
         EventSignal<Event&, WindowDetails&> WindowQuitRequest;
+        EventSignal<Event&, WindowDetails&, int, int> WindowResize;
 
         bool HasEvent()
         {
@@ -26,9 +27,16 @@ namespace loopxia
                 WindowDetails details;
                 details.windowId = sdlEvt.window.windowID;
                 WindowQuitRequest.Signal(evt, details);
-            }
-                
                 return true;
+            }
+
+            case SDL_EVENT_WINDOW_RESIZED:
+            {
+                WindowDetails details;
+                details.windowId = sdlEvt.window.windowID;
+                WindowResize.Signal(evt, details, sdlEvt.window.data1, sdlEvt.window.data2);
+                return true;
+            }
             }
 
             return false;

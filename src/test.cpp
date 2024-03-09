@@ -88,6 +88,19 @@ void PrintRenderers()
     }
 }
 
+void resize(int width, int height)
+{
+    if (height <= 0)    height = 1;
+
+    glViewport(0, 0, (GLsizei)width, (GLsizei)height);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    //gluPerspective(60.0f, float(width) / float(height), 1.0f, 100.0f);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+}
 
 void initVertices()
 {
@@ -126,7 +139,6 @@ void InitGLEW()
 
 int main()
 {
-    cout << "Hello CMake." << endl;
     PrintRenderers();
 
     InitEngine();
@@ -141,6 +153,13 @@ int main()
 
     gWindow = CreateUIWindow("test");
     
+    auto  f = [](Event& evt, WindowDetails& details, int w, int h) -> bool {
+        resize(w, h);
+        return true;
+        };
+
+    event::WindowResize.connect(f);
+
     InitGLEW();
     initVertices();
 
