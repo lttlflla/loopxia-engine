@@ -1,11 +1,15 @@
-#https://github.com/meemknight/PikaEngine
-
-
 cmake_minimum_required(VERSION 3.16)
 
 if (WIN32)
     add_compile_definitions(LOOPXIA_PLATFORM_WINDOWS WIN32_LEAN_AND_MEAN )
 endif (WIN32)
+
+if(MSVC)
+    # Default to statically-linked runtime.
+    if("${MSVC_RUNTIME}" STREQUAL "")
+      set(MSVC_RUNTIME "static")
+    endif()
+endif()
 
 #I want to link statically to the runtime library. This will help in sharing the game with others
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebug$<$<CONFIG:Debug>:Debug>")
