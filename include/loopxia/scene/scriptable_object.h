@@ -1,7 +1,7 @@
 #pragma once
 
 #include "loopxia/object/object.h"
-#include "loopxia/object/script.h"
+#include "loopxia/scene/script.h"
 #include "loopxia/time.h"
 
 #include <vector>

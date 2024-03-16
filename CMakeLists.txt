@@ -12,8 +12,7 @@ if(MSVC)
 endif()
 
 #I want to link statically to the runtime library. This will help in sharing the game with others
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebug$<$<CONFIG:Debug>:Debug>")
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -39,6 +38,8 @@ if(MSVC)
 add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
 
+add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
+
 #set exe type to be windowed
 if(MSVC)
   set_target_properties(loopxia-engine PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
@@ -51,9 +52,9 @@ set(LOOPXIA_INCLUDE_DIR "include/loopxia")
 # Add source to this project's executable.
 add_executable (loopxia-engine "src/test.cpp" 
 "src/loopxia.cpp" 
-"${LOOPXIA_INCLUDE_DIR}/object/object.h" 
-"${LOOPXIA_INCLUDE_DIR}/object/gameobject.h" 
-"${LOOPXIA_INCLUDE_DIR}/object/script.h" "include/loopxia/object/scriptable_object.h" "include/loopxia/time.h" "include/loopxia/object/transform.h" "src/object/transform.cpp" "src/object/transform_manager.h" "src/object/gameobject.cpp" "src/object/scriptable_object.cpp" "include/loopxia/render/sprite.h" "include/loopxia/render/mesh.h" "include/loopxia/render/raymarch.h" "include/loopxia/render/billboard.h" "include/loopxia/render/renderer.h" "src/render/renderer.cpp" "src/log.cpp" "include/loopxia/ui.h" "include/loopxia/render/shader.h" "src/render/shader.cpp" "include/loopxia/render/render_buffer.h" "src/render/render_buffer.cpp")
+"include/loopxia/object/object.h" 
+"include/loopxia/scene/game_object.h" 
+"include/loopxia/scene/script.h" "include/loopxia/scene/scriptable_object.h" "include/loopxia/time.h" "include/loopxia/scene/transform.h" "src/scene/transform.cpp" "src/scene/transform_manager.h" "src/scene/game_object.cpp" "src/scene/scriptable_object.cpp" "include/loopxia/render/sprite.h" "include/loopxia/render/mesh.h" "include/loopxia/render/raymarch.h" "include/loopxia/render/billboard.h" "include/loopxia/render/renderer.h" "src/render/renderer.cpp" "src/log.cpp" "include/loopxia/ui.h" "include/loopxia/render/shader.h" "src/render/shader.cpp" "include/loopxia/render/render_buffer.h" "src/render/render_buffer.cpp" "src/scene/camera.cpp" "include/loopxia/scene/camera.h" "include/loopxia/scene/scene.h" "include/loopxia/graph/node.h" "include/loopxia/bounding_volume/bounding_volume.h" "src/bounding_volume/bounding_volume.cpp" "src/math/math.cpp" "src/object/object.cpp" )
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET loopxia-engine PROPERTY CXX_STANDARD 20)

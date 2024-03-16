@@ -1,5 +1,5 @@
-#include "loopxia/object/transform.h"
-#include "loopxia/object/gameobject.h"
+#include "loopxia/scene/transform.h"
+#include "loopxia/scene/game_object.h"
 
 namespace loopxia
 {

@@ -22,7 +22,7 @@ namespace loopxia
                 float x, y;
                 
                 SDL_GetGlobalMouseState(&x, &y);
-                SDL_Point mousePt = { x, y };
+                SDL_Point mousePt = { (int)x, (int)y };
                 
                 auto displayId = SDL_GetDisplayForPoint(&mousePt);
                 auto dm = SDL_GetCurrentDisplayMode(displayId);

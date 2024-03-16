@@ -1,4 +1,4 @@
-#include "loopxia/object/scriptable_object.h"
+#include "loopxia/scene/scriptable_object.h"
 
 namespace loopxia
 {
