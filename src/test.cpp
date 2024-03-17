@@ -7,6 +7,7 @@
 #include "loopxia/render/render_buffer.h"
 #include <GL/glew.h>
 #include <iostream>
+#include "loopxia/resource/mesh.h"
 
 using namespace std;
 using namespace loopxia;

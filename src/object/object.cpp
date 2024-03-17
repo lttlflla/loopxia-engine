@@ -4,6 +4,9 @@ namespace loopxia
 {
     Object::Object()
     {
+    }
 
+    Object::~Object()
+    {
     }
 }

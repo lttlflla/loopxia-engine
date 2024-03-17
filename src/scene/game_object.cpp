@@ -34,7 +34,6 @@ namespace loopxia
 
     GameObject::GameObject(GameObject* parent) : m_impl(new impl::GameObjectImpl(this, parent))
     {
-
     }
 
     GameObject::~GameObject()

@@ -32,6 +32,7 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) #under no circumstance we want th
 add_subdirectory(third_party/SDL)
 add_subdirectory(third_party/glm)
 add_subdirectory(third_party/glew-cmake)
+add_subdirectory(third_party/assimp)
 
 
 if(MSVC)
@@ -54,7 +55,18 @@ add_executable (loopxia-engine "src/test.cpp"
 "src/loopxia.cpp" 
 "include/loopxia/object/object.h" 
 "include/loopxia/scene/game_object.h" 
-"include/loopxia/scene/script.h" "include/loopxia/scene/scriptable_object.h" "include/loopxia/time.h" "include/loopxia/scene/transform.h" "src/scene/transform.cpp" "src/scene/game_object.cpp" "src/scene/scriptable_object.cpp" "include/loopxia/render/sprite.h" "include/loopxia/render/mesh.h" "include/loopxia/render/raymarch.h" "include/loopxia/render/billboard.h" "include/loopxia/render/renderer.h" "src/render/renderer.cpp" "src/log.cpp" "include/loopxia/ui.h" "include/loopxia/render/shader.h" "src/render/shader.cpp" "include/loopxia/render/render_buffer.h" "src/render/render_buffer.cpp" "src/scene/camera.cpp" "include/loopxia/scene/camera.h" "include/loopxia/scene/scene.h" "include/loopxia/graph/node.h" "include/loopxia/bounding_volume/bounding_volume.h" "src/bounding_volume/bounding_volume.cpp" "src/math/math.cpp" "src/object/object.cpp"  "src/render/mesh.cpp")
+"include/loopxia/scene/script.h" 
+"include/loopxia/scene/scriptable_object.h" 
+"include/loopxia/time.h" 
+"include/loopxia/scene/transform.h" 
+"src/scene/transform.cpp" 
+"src/scene/game_object.cpp" 
+"src/scene/scriptable_object.cpp" 
+"include/loopxia/render/sprite.h" 
+"include/loopxia/resource/mesh.h" 
+"include/loopxia/render/raymarch.h" 
+"include/loopxia/render/billboard.h" 
+"include/loopxia/render/renderer.h" "src/render/renderer.cpp" "src/log.cpp" "include/loopxia/ui.h" "include/loopxia/render/shader.h" "src/render/shader.cpp" "include/loopxia/render/render_buffer.h" "src/render/render_buffer.cpp" "src/scene/camera.cpp" "include/loopxia/scene/camera.h" "include/loopxia/scene/scene.h" "include/loopxia/graph/node.h" "include/loopxia/bounding_volume/bounding_volume.h" "src/bounding_volume/bounding_volume.cpp" "src/math/math.cpp" "src/object/object.cpp"  "src/resource/mesh.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET loopxia-engine PROPERTY CXX_STANDARD 20)
@@ -101,5 +113,5 @@ find_package(OpenGL REQUIRED)
 
 include_directories( ${OPENGL_INCLUDE_DIRS} )
 
-target_link_libraries(loopxia-engine PRIVATE SDL3-static glm libglew_static  ${OPENGL_LIBRARIES})
+target_link_libraries(loopxia-engine PRIVATE SDL3-static glm libglew_static assimp  ${OPENGL_LIBRARIES})
 
