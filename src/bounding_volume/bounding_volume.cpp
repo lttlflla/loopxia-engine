@@ -11,7 +11,7 @@ namespace loopxia
 
         _extends = _aabbMax - _aabbMin;
 
-        _center = 0.5 * (_aabbMin + _aabbMax);
+        _center = 0.5f * (_aabbMin + _aabbMax);
 
         _rotation = rotation;
         _rotationInverse = Inverse(rotation);
@@ -24,9 +24,9 @@ namespace loopxia
         Vector3 axisExtendY = _axisY * _extends.y;
         Vector3 axisExtendZ = _axisZ * _extends.z;
 
-        _axisHalfExtendX = 0.5 * axisExtendX;
-        _axisHalfExtendY = 0.5 * axisExtendY;
-        _axisHalfExtendZ = 0.5 * axisExtendZ;
+        _axisHalfExtendX = 0.5f * axisExtendX;
+        _axisHalfExtendY = 0.5f * axisExtendY;
+        _axisHalfExtendZ = 0.5f * axisExtendZ;
 
         _maxDiagonal = Length(_aabbMax - _center);
     }
@@ -110,32 +110,32 @@ namespace loopxia
             maxZ = std::max(maxZ, projZ);
         }
 
-        Vector3 midPoint = 0.5 * (b._center - a._center) + a._center;
-        double boxDistanceX = glm::abs(glm::dot((b._center - a._center), basisX));
-        double maxXForBoxB = glm::length(b._axisHalfExtendX);
+        Vector3 midPoint = 0.5f * (b._center - a._center) + a._center;
+        float boxDistanceX = glm::abs(glm::dot((b._center - a._center), basisX));
+        float maxXForBoxB = glm::length(b._axisHalfExtendX);
         maxXForBoxB = (maxX > boxDistanceX + maxXForBoxB) ? (maxX - boxDistanceX) : maxXForBoxB;
-        double maxXForBoxA = (maxXForBoxB > boxDistanceX + maxX) ? (maxXForBoxB - boxDistanceX) : maxX;
+        float maxXForBoxA = (maxXForBoxB > boxDistanceX + maxX) ? (maxXForBoxB - boxDistanceX) : maxX;
 
         Vector3 minAX = a._center - maxXForBoxA * basisX;
-        Vector3 centerX = a._center + ((boxDistanceX + maxXForBoxB - maxXForBoxA) * basisX) * 0.5;
+        Vector3 centerX = a._center + ((boxDistanceX + maxXForBoxB - maxXForBoxA) * basisX) * 0.5f;
         Vector3 halfExtendX = glm::normalize(minAX - centerX) * glm::length(minAX - centerX);
 
         // Calculate center for basis Y
-        double boxDistanceY = glm::abs(glm::dot((b._center - a._center), basisY));
-        double maxYForBoxB = glm::length(b._axisHalfExtendY);
+        float boxDistanceY = glm::abs(glm::dot((b._center - a._center), basisY));
+        float maxYForBoxB = glm::length(b._axisHalfExtendY);
         maxYForBoxB = (maxY > boxDistanceY + maxYForBoxB) ? (maxY - boxDistanceY) : maxYForBoxB;
-        double maxYForBoxA = (maxYForBoxB > boxDistanceY + maxY) ? (maxYForBoxB - boxDistanceY) : maxY;
+        float maxYForBoxA = (maxYForBoxB > boxDistanceY + maxY) ? (maxYForBoxB - boxDistanceY) : maxY;
         Vector3 minAY = a._center - maxYForBoxA * basisY;
-        Vector3 centerY = a._center + ((boxDistanceY + maxYForBoxB - maxYForBoxA) * basisY) * 0.5;
+        Vector3 centerY = a._center + ((boxDistanceY + maxYForBoxB - maxYForBoxA) * basisY) * 0.5f;
         Vector3 halfExtendY = glm::normalize(minAY - centerY) * glm::length(minAY - centerY);
 
         // Calculate center for basis Z
-        double boxDistanceZ = glm::abs(glm::dot((b._center - a._center), basisZ));
-        double maxZForBoxB = glm::length(b._axisHalfExtendZ);
+        float boxDistanceZ = glm::abs(glm::dot((b._center - a._center), basisZ));
+        float maxZForBoxB = glm::length(b._axisHalfExtendZ);
         maxZForBoxB = (maxZ > boxDistanceZ + maxZForBoxB) ? (maxZ - boxDistanceZ) : maxZForBoxB;
-        double maxZForBoxA = (maxZForBoxB > boxDistanceZ + maxZ) ? (maxZForBoxB - boxDistanceZ) : maxZ;
+        float maxZForBoxA = (maxZForBoxB > boxDistanceZ + maxZ) ? (maxZForBoxB - boxDistanceZ) : maxZ;
         Vector3 minAZ = a._center - maxZForBoxA * basisZ;
-        Vector3 centerZ = a._center + ((boxDistanceZ + maxZForBoxB - maxZForBoxA) * basisZ) * 0.5;
+        Vector3 centerZ = a._center + ((boxDistanceZ + maxZForBoxB - maxZForBoxA) * basisZ) * 0.5f;
         Vector3 halfExtendZ = glm::normalize(minAZ - centerZ) * glm::length(minAZ - centerZ);
 
         Vector3 projCenterY = glm::dot(centerY - centerX, basisY) * basisY;
@@ -188,18 +188,18 @@ namespace loopxia
             (-a._axisHalfExtendX - a._axisHalfExtendY - a._axisHalfExtendZ)
         };
 
-        double maxX = 0.0;
-        double maxZ = 0.0;
+        float maxX = 0.0;
+        float maxZ = 0.0;
 
         for (int i = 0; i < 16; ++i) {
-            double projX = glm::abs(glm::dot(allPoints[i], basisX));
-            double projZ = glm::abs(glm::dot(allPoints[i], basisZ));
+            float projX = glm::abs(glm::dot(allPoints[i], basisX));
+            float projZ = glm::abs(glm::dot(allPoints[i], basisZ));
 
             maxX = std::max(maxX, projX);
             maxZ = std::max(maxZ, projZ);
         }
 
-        double maxYForBoxB = 0.0;
+        float maxYForBoxB = 0.0;
         // Find max projection on basis Y for box b
         for (int i = 0; i < 8; ++i) {
             float projY = glm::abs(glm::dot(allPoints[i], basisY));
@@ -222,11 +222,11 @@ namespace loopxia
             basisYDir = -basisYDir;
         }
 
-        Vector3 midPoint = 0.5 * (b._center - a._center) + a._center;
+        Vector3 midPoint = 0.5f * (b._center - a._center) + a._center;
         float boxDistance = glm::length(b._center - a._center);
         maxYForBoxB = (maxYForBoxA > boxDistance + maxYForBoxB) ? (maxYForBoxA - boxDistance) : maxYForBoxB;
         maxYForBoxA = (maxYForBoxB > boxDistance + maxYForBoxA) ? (maxYForBoxB - boxDistance) : maxYForBoxA;
-        Vector3 newBoxCenter = midPoint + ((maxYForBoxB - maxYForBoxA) * 0.5) * basisYDir;
+        Vector3 newBoxCenter = midPoint + ((maxYForBoxB - maxYForBoxA) * 0.5f) * basisYDir;
 
         Quaternion q = QuaternionFrom(Vector3(0, 1, 0), basisY); // get rotation to axis aligned box
 

@@ -12,18 +12,6 @@ namespace loopxia
 {
     namespace event
     {
-        enum class EventType
-        {
-            NONE,
-            WINDOW_CLOSE_REQUEST
-        };
-
-        // predefined events
-        struct WindowDetails
-        {
-            uint32_t windowId;
-        };
-
 
         class EventConnection
         {
@@ -205,13 +193,5 @@ namespace loopxia
             std::chrono::time_point<std::chrono::steady_clock> timestamp;
         };
 
-        void PostEvent(const Event& evt);
-        bool HasEvent();
-        bool PollEvent();
-        bool ProbeEvent(Event& evt);
-
-        // predefined events
-        extern EventSignal<Event&, WindowDetails&> WindowQuitRequest;
-        extern EventSignal<Event&, WindowDetails&, int, int> WindowResize;
     }
 }

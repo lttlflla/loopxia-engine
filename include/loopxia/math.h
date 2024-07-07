@@ -17,9 +17,11 @@ namespace loopxia
     //    inline double Length();
     //};
 
-    using Vector3 = glm::dvec3;
-    using Vector4 = glm::dvec4;
-    using Quaternion = glm::qua<double, glm::defaultp>;
+    using Vector2 = glm::vec2;
+    using Vector3 = glm::vec3;
+    using Vector4 = glm::vec4;
+    using Quaternion = glm::qua<float, glm::defaultp>;
+    using Matrix4x4 = glm::mat4x4;
 
     //class Quaternion : public glm::qua<double, glm::defaultp>
     //{
@@ -31,10 +33,19 @@ namespace loopxia
     //    Quaternion Inverse();
     //};
 
+    struct Plane
+    {
+        Vector3 pos;
+        Vector3 n;
+
+        bool operator==(const Plane& p2) const;
+    };
+
     namespace math
     {
         Vector3 Normalize(const Vector3& v);
         double Length(const Vector3& v);
+        float Dot(const Vector3& v1, const Vector3& v2);
         Vector3 Abs(const Vector3& v);
         Vector3 Rotate(const Vector3& v, const Quaternion& q);
         Quaternion Inverse(const Quaternion& q);

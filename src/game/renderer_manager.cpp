@@ -2,6 +2,7 @@
 #include "loopxia/render/renderer.h"
 #include "loopxia/log.h"
 #include <format>
+#include <map>
 
 namespace loopxia
 {
@@ -20,15 +21,25 @@ namespace loopxia
                 SDL_DestroyRenderer(m_renderer);
             }
 
+            void AddToRenderQueue(Renderer::RenderPriority priority, const Renderer::RenderFunction& func)
+            {
+                m_queue.emplace(priority, std::move(func));
+            }
+
             // 
             void Present()
             {
+                for (auto& r : m_queue) {
+                    r.second();
+                }
 
+                m_queue.clear();
             }
 
 
         private:
             SDL_Renderer* m_renderer;
+            std::multimap<Renderer::RenderPriority, Renderer::RenderFunction> m_queue;
         };
     }
 
@@ -42,4 +53,8 @@ namespace loopxia
 
     }
 
+    void Renderer::AddToRenderQueue(RenderPriority priority, const RenderFunction& func)
+    {
+
+    }
 }

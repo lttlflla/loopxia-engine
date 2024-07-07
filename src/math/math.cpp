@@ -3,11 +3,22 @@
 
 namespace loopxia
 {
+    bool Plane::operator==(const Plane& p2) const
+    {
+        
+        return math::Normalize(p2.n) == n && math::Dot(pos - p2.pos, p2.n) == 0;
+    }
+
     namespace math
     {
         Vector3 Normalize(const Vector3& v)
         {
             return glm::normalize(v);
+        }
+
+        float Dot(const Vector3& v1, const Vector3& v2)
+        {
+            return glm::dot<3, float, glm::qualifier::highp>(v1, v2);
         }
 
         double Length(const Vector3& v)

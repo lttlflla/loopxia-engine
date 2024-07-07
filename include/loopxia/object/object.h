@@ -11,7 +11,8 @@ namespace loopxia
     template<typename T>
     class InstanceTracker {
     private:
-        static std::unordered_set<T*> instances;
+        // use inline so that multiple include of this template header does not instantiate multiple instances
+        inline static std::unordered_set<T*> instances;
 
     public:
         InstanceTracker() {
@@ -27,8 +28,6 @@ namespace loopxia
         }
     };
 
-    template<typename T>
-    std::unordered_set<T*> InstanceTracker<T>::instances;
 
     class Object : public InstanceTracker<Object>
     {

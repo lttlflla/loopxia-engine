@@ -1,26 +1,16 @@
 #pragma once
 
-#include "loopxia/scene/game_object.h"
+#include "loopxia/scene/scene_node.h"
 
 namespace loopxia
 {
-    namespace impl
-    {
-        class SceneImpl;
-    }
-
     class Scene
     {
     public:
-        Scene();
-        ~Scene();
+        virtual ~Scene() = default;
 
-        GameObject* SceneRoot();
-
-    protected:
-
-    private:
-        impl::SceneImpl* m_impl;
-
+        virtual SceneNode* SceneRoot() = 0;
     };
+
+    Scene* CreateScene();
 }

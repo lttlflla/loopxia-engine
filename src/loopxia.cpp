@@ -1,5 +1,6 @@
 #include "loopxia/loopxia.h"
 #include <SDL.h>
+#include <GL/glew.h>
 
 namespace loopxia
 {

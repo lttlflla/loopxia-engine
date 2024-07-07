@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 
 namespace loopxia
@@ -33,6 +35,8 @@ namespace loopxia
             const void* pointer);
 
         int GetAttribute(const std::string& attribute);
+        int GetUniformLocation(const std::string& attributeName);
+
     protected:
         impl::ShaderImpl* m_impl;
     };

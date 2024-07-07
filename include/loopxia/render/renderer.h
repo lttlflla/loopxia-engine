@@ -1,20 +1,14 @@
+#pragma once
+
+#include "loopxia/game/game.h"
 
 namespace loopxia
 {
-    namespace impl
-    {
-        class RendererImpl;
-    }
-
     class Renderer
     {
     public:
-        Renderer();
-        ~Renderer();
-        void Render();
-        void Present();
+        virtual ~Renderer() = default;
 
-    private:
-        impl::RendererImpl * m_impl;
+        virtual void Render(const GameTime&) = 0;
     };
 }

@@ -48,12 +48,15 @@ namespace loopxia
                     m_glDataType = GL_ELEMENT_ARRAY_BUFFER;
                     break; 
                 case RenderBufferDataType::VERTEX_BUFFER:
+                case RenderBufferDataType::UV_BUFFER:
                     m_glDataType = GL_ARRAY_BUFFER;
                     break;
                 }
 
                 glBindBuffer(m_glDataType, m_bufferId);
+                auto e = glGetError();
                 glBufferData(m_glDataType, dataSize, data, GL_STATIC_DRAW);
+                e = glGetError();
 
                 m_bGenerated = true;
             }
@@ -87,6 +90,6 @@ namespace loopxia
 
     void RenderBuffer::Bind()
     {
-
+        m_impl->Bind();
     }
 }

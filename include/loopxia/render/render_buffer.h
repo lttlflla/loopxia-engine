@@ -11,7 +11,8 @@ namespace loopxia
     enum class RenderBufferDataType
     {
         VERTEX_BUFFER,
-        INDEX_BUFFER
+        INDEX_BUFFER,
+        UV_BUFFER,
     };
 
     class RenderBuffer

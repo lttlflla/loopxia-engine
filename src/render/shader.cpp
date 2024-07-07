@@ -163,6 +163,11 @@ namespace loopxia
                 return glGetAttribLocation(m_programID, attribute.c_str());
             }
 
+            int GetUniformLocation(const std::string& attributeName)
+            {
+                return glGetUniformLocation(m_programID, attributeName.c_str());
+
+            }
         protected:
             GLuint m_programID = 0;
             GLuint m_fragmentShader = 0;
@@ -213,5 +218,11 @@ namespace loopxia
     int Shader::GetAttribute(const std::string& attribute)
     {
         return m_impl->GetAttribute(attribute);
+    }
+
+
+    int Shader::GetUniformLocation(const std::string& attributeName)
+    {
+        return m_impl->GetUniformLocation(attributeName);
     }
 }

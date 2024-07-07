@@ -41,32 +41,55 @@ endif()
 
 add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
 
-#set exe type to be windowed
-if(MSVC)
-  set_target_properties(loopxia-engine PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-endif()
-
 project ("loopxia-engine")
 
-set(LOOPXIA_INCLUDE_DIR "include/loopxia")
+set(LOOPXIA_INCLUDE_DIR "include")
+set(LOOPXIA_SOURCE_DIR "src")
 
 # Add source to this project's executable.
-add_executable (loopxia-engine "src/test.cpp" 
-"src/loopxia.cpp" 
+add_library (loopxia-engine 
 "include/loopxia/object/object.h" 
-"include/loopxia/scene/game_object.h" 
+"include/loopxia/time.h" 
 "include/loopxia/scene/script.h" 
 "include/loopxia/scene/scriptable_object.h" 
-"include/loopxia/time.h" 
 "include/loopxia/scene/transform.h" 
-"src/scene/transform.cpp" 
-"src/scene/game_object.cpp" 
+"src/loopxia.cpp" 
+"src/scene/transform_impl.cpp" 
+"src/scene/scene_node_impl.cpp" 
 "src/scene/scriptable_object.cpp" 
 "include/loopxia/render/sprite.h" 
-"include/loopxia/resource/mesh.h" 
 "include/loopxia/render/raymarch.h" 
 "include/loopxia/render/billboard.h" 
-"include/loopxia/render/renderer.h" "src/render/renderer.cpp" "src/log.cpp" "include/loopxia/ui.h" "include/loopxia/render/shader.h" "src/render/shader.cpp" "include/loopxia/render/render_buffer.h" "src/render/render_buffer.cpp" "src/scene/camera.cpp" "include/loopxia/scene/camera.h" "include/loopxia/scene/scene.h" "include/loopxia/graph/node.h" "include/loopxia/bounding_volume/bounding_volume.h" "src/bounding_volume/bounding_volume.cpp" "src/math/math.cpp" "src/object/object.cpp"  "src/resource/mesh.cpp")
+"include/loopxia/render/renderer.h" 
+"src/render/renderer.cpp" 
+"src/log.cpp" 
+"include/loopxia/ui.h" 
+"include/loopxia/render/shader.h" 
+"src/render/shader.cpp" 
+"include/loopxia/render/render_buffer.h" 
+"src/render/render_buffer.cpp" 
+"src/scene/component/camera_impl.cpp" 
+"include/loopxia/scene/component/camera.h" 
+"include/loopxia/scene/scene.h" 
+"include/loopxia/graph/node.h" 
+"include/loopxia/bounding_volume/bounding_volume.h" 
+"src/bounding_volume/bounding_volume.cpp" 
+"src/math/math.cpp" 
+"src/object/object.cpp" 
+"src/resource/mesh.cpp" 
+ 
+"include/loopxia/scene/component/mesh_renderer.h" 
+"include/loopxia/input/keyboard.h" 
+"include/loopxia/scene/hexagon_grid.h" 
+"src/editor/editor.cpp" 
+"include/loopxia/editor/editor.h" 
+"include/loopxia/game/game.h" 
+"src/game/game.cpp" 
+"src/game/camera_controller_impl.cpp"
+"src/scene/transform_impl.h" 
+"include/loopxia/scene/scene_transition.h" 
+"src/scene/component/camera_impl.h" 
+"src/scene/scene_impl.cpp"  "src/scene/component/mesh_renderer.cpp" "include/loopxia/render/render_manager.h" "src/scene/component/component_impl.h")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET loopxia-engine PROPERTY CXX_STANDARD 20)
@@ -97,21 +120,32 @@ target_sources(loopxia-engine PRIVATE
 
 target_include_directories(loopxia-engine PUBLIC
                            "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-                            "$<INSTALL_INTERFACE:include>")
+                            "$<INSTALL_INTERFACE:include>" 
+PRIVATE 
+"${LOOPXIA_SOURCE_DIR}")
                             
 #set(VECTORMATH_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/vectormath)
 #target_include_directories(loopxia-engine PRIVATE "${VECTORMATH_DIR}" )
 
 target_precompile_headers(loopxia-engine
   PUBLIC
-   ${LOOPXIA_INCLUDE_DIR}/math.h
-   third_party/SDL/include/SDL3/SDL.h
+   ${LOOPXIA_INCLUDE_DIR}/loopxia/math.h
+   ${LOOPXIA_INCLUDE_DIR}/loopxia/log.h
   PRIVATE
+   third_party/stb/stb_image.h
+   third_party/SDL/include/SDL3/SDL.h
+   ${LOOPXIA_INCLUDE_DIR}/loopxia/log.h
 )
 
 find_package(OpenGL REQUIRED)
 
-include_directories( ${OPENGL_INCLUDE_DIRS} )
+include_directories( ${OPENGL_INCLUDE_DIRS} "third_party")
 
-target_link_libraries(loopxia-engine PRIVATE SDL3-static glm libglew_static assimp  ${OPENGL_LIBRARIES})
+target_link_libraries(loopxia-engine PRIVATE SDL3-static  assimp  ${OPENGL_LIBRARIES} PUBLIC glm libglew_static)
 
+
+set(targets loopxia-engine)  # List of target names
+foreach(target ${targets})
+    get_target_property(INCLUDE_DIRS ${target} INCLUDE_DIRECTORIES)
+    message(STATUS "Include directories for target ${target}: ${INCLUDE_DIRS}")
+endforeach()
