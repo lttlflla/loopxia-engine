@@ -7,7 +7,6 @@
 //#include <GL/glew.h>
 
 using namespace loopxia;
-using namespace loopxia::event;
 
 namespace loopxia
 {
@@ -132,9 +131,7 @@ namespace loopxia
             auto elapsed = timeNow - m_lastUpdateTime;
             m_lastUpdateTime = timeNow;
 
-            GameTime time;
-            time.timestamp = timeNow;
-            time.elapsedTimeMs = elapsed;
+            GameTime time(elapsed, timeNow);
 
             GameUpdate.Signal(time);
         }

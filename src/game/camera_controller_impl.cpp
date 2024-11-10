@@ -1,8 +1,6 @@
 #include "game/camera_controller_impl.h"
 #include "loopxia/event.h"
 
-using namespace loopxia::event;
-
 namespace loopxia
 {
     void CameraControllerImpl::Init(Game* game)
@@ -76,7 +74,7 @@ namespace loopxia
         camMoveDir = Vector3(m_camDirLeftRight, 0, m_camDirUpDown);
         if (camMoveDir != Vector3(0, 0, 0)) {
             camMoveDir = math::Normalize(camMoveDir);
-            auto sec = time.elapsedTimeMs.count() / 1000;
+            auto sec = time.ElapsedTimeSeconds();
             camMoveDir *= sec * 20;
             m_camera->SetPosition(m_camera->GetPosition() + camMoveDir);
         }

@@ -7,191 +7,274 @@
 #include <unordered_map>
 #include <variant>
 #include <chrono>
+#include "mutex.h"
 
 namespace loopxia
 {
-    namespace event
+    class EventConnectionImpl
     {
-
-        class EventConnection
+        typedef std::function<void()> func;
+        typedef std::function<bool()> checkConnectedFunc;
+    public:
+        EventConnectionImpl(func connectCall, func disconnectCall, func destroyCall, checkConnectedFunc checkConnect) :
+            m_connect(connectCall)
+            , m_disconnect(disconnectCall)
+            , m_destroy(destroyCall)
+            , m_checkConnected(checkConnect)
         {
-            typedef std::function<void()> func;
-            typedef std::function<bool()> checkConnectedFunc;
-        public:
-            EventConnection(func disconnectCall, func connectCall, func destroyCall, checkConnectedFunc checkConnect) :
-                m_disconnect(disconnectCall)
-                , m_connect(connectCall)
-                , m_destroy(destroyCall)
-                , m_checkConnected(checkConnect)
-            {
-            }
+        }
 
-            ~EventConnection()
-            {
-            }
+        ~EventConnectionImpl()
+        {
+            m_destroy();
+        }
 
-            // reconnect
-            void Connect()
-            {
-                m_connect();
-            }
+        // reconnect
+        void Connect()
+        {
+            m_connect();
+        }
 
-            // temporary disconnect
-            void Disconnect()
-            {
-                m_disconnect();
-            }
+        // temporary disconnect
+        void Disconnect()
+        {
+            m_disconnect();
+        }
 
-            // distroy the callback
-            void Destroy()
-            {
-                m_destroy();
-            }
+        // distroy the callback
+        void Destroy()
+        {
+            m_destroy();
+        }
 
-            bool IsConnected()
-            {
-                return m_checkConnected();
-            }
+        bool IsConnected()
+        {
+            return m_checkConnected();
+        }
 
-        private:
-            bool m_bIsConnected;
-            func m_disconnect;
-            func m_connect;
-            func m_destroy;
-            checkConnectedFunc m_checkConnected;
+    private:
+        bool m_bIsConnected;
+        func m_disconnect;
+        func m_connect;
+        func m_destroy;
+        checkConnectedFunc m_checkConnected;
+    };
+
+    class EventConnection
+    {
+    public:
+        EventConnection(std::shared_ptr<EventConnectionImpl> impl)
+        {
+        }
+
+        ~EventConnection()
+        {
+        }
+
+        // reconnect
+        void Connect()
+        {
+            m_impl->Connect();
+        }
+
+        // temporary disconnect
+        void Disconnect()
+        {
+            m_impl->Disconnect();
+        }
+
+        // distroy the callback
+        void Destroy()
+        {
+            m_impl->Destroy();
+        }
+
+        bool IsConnected()
+        {
+            return m_impl->IsConnected();
+        }
+
+    private:
+        std::shared_ptr<EventConnectionImpl> m_impl;
+    };
+
+
+    template <class ... Args>
+    class EventSignal
+    {
+    public:
+        typedef std::function<bool(Args...)> Slot;
+
+        struct SlotEntry
+        {
+            Slot slot;
+            int priority;
+            int slotId;
         };
 
-        template <class ... Args>
-        class EventSignal
+        struct SlotEntryHash
         {
-        public:
-            typedef std::function<bool(Args...)> Slot;
-
-            struct SlotEntry
+            std::size_t operator()(const SlotEntry& c) const
             {
-                Slot slot;
-                int priority;
-                int slotId;
+                return c.slotId;
+            }
+        };
+
+        bool CmpSlotEntry(SlotEntry const& lhs, SlotEntry const& rhs)
+        {
+            return lhs.slotId < rhs.slotId;
+        }
+
+        EventSignal() : m_impl(new EventSignalImpl)
+        {
+        }
+
+        EventSignal(const EventSignal<Args...>&) = delete;
+
+        EventConnection connect(Slot const& callback)
+        {
+            LockGuard l(m_impl->m_cs);
+            const int defaultPriority = 100;
+            SlotEntry entry;
+            entry.slot = callback;
+            entry.slotId = m_impl->_GenerateNextSlotId();
+            entry.priority = defaultPriority;
+            m_impl->m_callbacks.insert(std::pair{defaultPriority, entry});
+            return GenerateEventConnection(entry.slotId);
+        }
+
+        EventConnection connect(int priority, Slot const& callback)
+        {
+            LockGuard l(m_impl->m_cs);
+            SlotEntry entry;
+            entry.slot = callback;
+            entry.slotId = m_impl->_GenerateNextSlotId();
+            entry.priority = priority;
+            m_impl->m_callbacks.insert(std::pair{priority, entry});
+            return GenerateEventConnection(entry.slotId);
+        }
+
+        EventConnection connect(int priority, int sourceId, Slot const& callback)
+        {
+            LockGuard l(m_impl->m_cs);
+            SlotEntry entry;
+            entry.slot = callback;
+            entry.slotId = m_impl->_GenerateNextSlotId();
+            entry.priority = priority;
+            m_impl->m_callbacks.insert(std::pair{priority, entry});
+            return GenerateEventConnection(entry.slotId);
+        }
+
+        void Signal(Args... args)
+        {
+            LockGuard l(m_impl->m_cs);
+            for (auto& c : m_impl->m_callbacks) {
+                c.second.slot(args...);
+            }
+        }
+
+    private:
+        class EventSignalImpl
+        {
+            friend class EventSignal<Args...>;
+
+            Mutex m_cs;
+
+            // map of priority to slot entry
+            std::multimap<int, SlotEntry> m_callbacks;
+
+            // map of slot id to slot entry
+            std::unordered_map<int, SlotEntry> m_disconnectedCallbacks;
+            int m_nextSlotId = 0;
+
+            int _GenerateNextSlotId()
+            {
+                return ++m_nextSlotId;
+            }
+
+            void _Reconnect(int slotId)
+            {
+                LockGuard l(m_cs);
+                auto it = m_disconnectedCallbacks.find(slotId);
+                if (it != m_disconnectedCallbacks.end()) {
+                    auto entry = it->second;
+                    m_disconnectedCallbacks.erase(it);
+                    m_callbacks.insert(std::pair{entry.priority, entry});
+                }
+            }
+
+            void _Disconnect(int slotId)
+            {
+                LockGuard l(m_cs);
+                auto matchSlot = [slotId](auto const& i) { return i.second.slotId == slotId; };
+                auto it = std::find_if(m_callbacks.begin(), m_callbacks.end(), matchSlot);
+                if (it != m_callbacks.end()) {
+                    m_disconnectedCallbacks.insert(std::pair{it->second.slotId, it->second});
+                    m_callbacks.erase(it);
+                }
+            }
+
+            bool _IsConnected(int slotId)
+            {
+                LockGuard l(m_cs);
+                auto matchSlot = [slotId](auto const& i) { return i.second.slotId == slotId; };
+                auto it = std::find_if(m_callbacks.begin(), m_callbacks.end(), matchSlot);
+                return it != m_callbacks.end();
+            }
+
+            void _Destroy(int slotId)
+            {
+                LockGuard l(m_cs);
+                auto matchSlot = [slotId](auto const& i) { return i.second.slotId == slotId; };
+                auto it = std::find_if(m_callbacks.begin(), m_callbacks.end(), matchSlot);
+                if (it != m_callbacks.end()) {
+                    m_callbacks.erase(it);
+                }
+            }
+
+        };
+
+        std::shared_ptr<EventSignalImpl> m_impl;
+
+        EventConnection GenerateEventConnection(int slotId)
+        {
+            std::weak_ptr<EventSignalImpl> pWeakThis = m_impl;
+            auto connectFunc = [pWeakThis, slotId] {
+                auto pEvent = pWeakThis.lock();
+                if (pEvent) {
+                    pEvent->_Reconnect(slotId);
+                }
             };
-
-            struct SlotEntryHash
-            {
-                std::size_t operator()(const SlotEntry& c) const
-                {
-                    return c.slotId;
+            auto disconnectFunc = [pWeakThis, slotId] {
+                auto pEvent = pWeakThis.lock();
+                if (pEvent) {
+                    pEvent->_Disconnect(slotId);
                 }
             };
-
-            bool CmpSlotEntry(SlotEntry const& lhs, SlotEntry const& rhs)
-            {
-                return lhs.slotId < rhs.slotId;
-            }
-
-            EventConnection connect(Slot const& callback)
-            {
-                const int defaultPriority = 100;
-                SlotEntry entry;
-                entry.slot = callback;
-                entry.slotId = _GenerateNextSlotId();
-                entry.priority = defaultPriority;
-                m_callbacks.insert(std::pair{defaultPriority, entry});
-                return GenerateEventConnection(entry.slotId);
-            }
-
-            EventConnection connect(int priority, Slot const& callback)
-            {
-                SlotEntry entry;
-                entry.slot = callback;
-                entry.slotId = _GenerateNextSlotId();
-                entry.priority = priority;
-                m_callbacks.insert(std::pair{priority, entry});
-                return GenerateEventConnection(entry.slotId);
-            }
-
-            EventConnection connect(int priority, int sourceId, Slot const& callback)
-            {
-                SlotEntry entry;
-                entry.slot = callback;
-                entry.slotId = _GenerateNextSlotId();
-                entry.priority = priority;
-                m_callbacks.insert(std::pair{priority, entry});
-                return GenerateEventConnection(entry.slotId);
-            }
-
-            void Signal(Args... args)
-            {
-                for (auto& c : m_callbacks) {
-                    c.second.slot(args...);
+            auto destroyFunc = [pWeakThis, slotId] {
+                auto pEvent = pWeakThis.lock();
+                if (pEvent) {
+                    pEvent->_Destroy(slotId);
                 }
-            }
-
-            private:
-                // map of priority to slot entry
-                std::multimap<int, SlotEntry> m_callbacks;
-
-                // map of slot id to slot entry
-                std::unordered_map<int, SlotEntry> m_disconnectedCallbacks;
-                int m_nextSlotId = 0;
-
-                int _GenerateNextSlotId()
-                {
-                    return ++m_nextSlotId;
+            };
+            auto checkFunc = [pWeakThis, slotId]() -> bool {
+                auto pEvent = pWeakThis.lock();
+                if (pEvent) {
+                    return pEvent->_IsConnected(slotId);
                 }
+                return false;
+            };
+            return EventConnection(std::make_shared<EventConnectionImpl>(connectFunc, disconnectFunc, destroyFunc, checkFunc));
+        }
+    };
 
-                void _Reconnect(int slotId)
-                {
-                    auto it = m_disconnectedCallbacks.find(slotId);
-                    if (it != m_disconnectedCallbacks.end()) {
-                        auto entry = it->second;
-                        m_disconnectedCallbacks.erase(it);
-                        m_callbacks.insert(std::pair{entry.priority, entry});
-                    }
-                }
-                
-                void _Disconnect(int slotId)
-                {
-                    auto matchSlot = [slotId](auto const& i) { return i.second.slotId == slotId; };
-                    auto it = std::find_if(m_callbacks.begin(), m_callbacks.end(), matchSlot);
-                    if (it != m_callbacks.end()) {
-                        m_disconnectedCallbacks.insert(std::pair{it->second.slotId, it->second});
-                        m_callbacks.erase(it);
-                    }
-                }
-
-                bool _IsConnected(int slotId)
-                {
-                    auto matchSlot = [slotId](auto const& i) { return i.second.slotId == slotId; };
-                    auto it = std::find_if(m_callbacks.begin(), m_callbacks.end(), matchSlot);
-                    return it != m_callbacks.end();
-                }
-
-                void _Destroy(int slotId)
-                {
-                    auto matchSlot = [slotId](auto const& i) { return i.second.slotId == slotId; };
-                    auto it = std::find_if(m_callbacks.begin(), m_callbacks.end(), matchSlot);
-                    if (it != m_callbacks.end()) {
-                        m_callbacks.erase(it);
-                    }
-                }
-
-                EventConnection GenerateEventConnection(int slotId)
-                {
-                    auto connectFunc = std::bind(&EventSignal<Args...>::_Reconnect, this, slotId);
-                    auto disconnectFunc = std::bind(&EventSignal<Args...>::_Disconnect, this, slotId);
-                    auto destroyFunc = std::bind(&EventSignal<Args...>::_Destroy, this, slotId);
-                    auto checkFunc = std::bind(&EventSignal<Args...>::_IsConnected, this, slotId);
-                    return EventConnection(connectFunc, disconnectFunc, destroyFunc, checkFunc);
-                }
-        };
-
-        struct Event
+    struct Event
+    {
+        Event()
         {
-            Event()
-            {
-            }
+        }
 
-            std::chrono::time_point<std::chrono::steady_clock> timestamp;
-        };
+        std::chrono::time_point<std::chrono::steady_clock> timestamp;
+    };
 
-    }
 }

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "loopxia/math.h"
 
 namespace loopxia
@@ -10,9 +12,9 @@ namespace loopxia
 
     enum class RenderBufferDataType
     {
-        VERTEX_BUFFER,
-        INDEX_BUFFER,
-        UV_BUFFER,
+        kVertexBuffer,
+        kIndexBuffer,
+        kUVBuffer,
     };
 
     class RenderBuffer

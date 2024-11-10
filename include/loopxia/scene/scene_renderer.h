@@ -1,6 +1,7 @@
 #pragma once
 
 #include "loopxia/game/game.h"
+#include "loopxia/graph/node.h"
 
 namespace loopxia
 {

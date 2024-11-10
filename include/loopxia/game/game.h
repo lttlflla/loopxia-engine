@@ -1,6 +1,7 @@
 #pragma once
 
 #include "loopxia/event.h"
+#include "loopxia/time.h"
 #include "loopxia/scene/scene.h"
 #include "loopxia/input/keyboard.h"
 #include "loopxia/scene/scene_transition.h"
@@ -20,12 +21,6 @@ namespace loopxia
         uint16_t modifiers; // see KeyModifier
     };
 
-    struct GameTime
-    {
-        std::chrono::time_point<std::chrono::steady_clock> timestamp;
-        std::chrono::duration<float, std::milli> elapsedTimeMs;
-    };
-
     class Game
     {
     public:
@@ -36,11 +31,11 @@ namespace loopxia
         };
 
         // predefined events
-        event::EventSignal<event::Event&, WindowDetails&> WindowQuitRequest;
-        event::EventSignal<event::Event&, WindowDetails&, int, int> WindowResize;
-        event::EventSignal<event::Event&, KeyEvent&> KeyDown;
-        event::EventSignal<event::Event&, KeyEvent&> KeyUp;
-        event::EventSignal<const GameTime&> GameUpdate;
+        EventSignal<Event&, WindowDetails&> WindowQuitRequest;
+        EventSignal<Event&, WindowDetails&, int, int> WindowResize;
+        EventSignal<Event&, KeyEvent&> KeyDown;
+        EventSignal<Event&, KeyEvent&> KeyUp;
+        EventSignal<GameTime&> GameUpdate;
 
         virtual ~Game() = default;
 

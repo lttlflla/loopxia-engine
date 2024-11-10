@@ -1,4 +1,4 @@
-#include "loopxia/scene/component/camera.h"
+#include "loopxia/object/camera.h"
 
 namespace loopxia
 {

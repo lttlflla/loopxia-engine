@@ -2,10 +2,10 @@
 
 namespace loopxia
 {
-    class ComponentRenderable
+    class Renderable
     {
     public:
-        virtual ~ComponentRenderable() = default;
+        virtual ~Renderable() = default;
 
         virtual void Render() = 0;
     };

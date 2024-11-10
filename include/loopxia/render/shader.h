@@ -15,8 +15,8 @@ namespace loopxia
     public:
         enum class ShaderType
         {
-            VERTEX,
-            FRAGMENT
+            kVertex,
+            kFragment
         };
 
         Shader();

@@ -12,7 +12,7 @@ namespace loopxia
     public:
         virtual ~Component() = default;
 
-        event::EventSignal<SceneNode* /*old scene node*/, SceneNode* /* new scene node*/> OnSceneNodeParentChange;
+        EventSignal<SceneNode* /*old scene node*/, SceneNode* /* new scene node*/> OnSceneNodeParentChange;
 
         virtual SceneNode* GetSceneNode() = 0;
 

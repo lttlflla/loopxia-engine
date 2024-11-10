@@ -44,11 +44,11 @@ namespace loopxia
                 glGenBuffers(1, &m_bufferId);
 
                 switch (dataType) {
-                case RenderBufferDataType::INDEX_BUFFER:
+                case RenderBufferDataType::kIndexBuffer:
                     m_glDataType = GL_ELEMENT_ARRAY_BUFFER;
                     break; 
-                case RenderBufferDataType::VERTEX_BUFFER:
-                case RenderBufferDataType::UV_BUFFER:
+                case RenderBufferDataType::kVertexBuffer:
+                case RenderBufferDataType::kUVBuffer:
                     m_glDataType = GL_ARRAY_BUFFER;
                     break;
                 }

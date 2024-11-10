@@ -7,9 +7,11 @@ namespace loopxia
         if (m_parent) {
             m_parent->AddChild(this);
         }
+
+        this->
     }
 
-    void SceneNodeImpl::OnParentChange()
+    void SceneNodeImpl::OnParentChange(MovableObject*, MovableObject*)
     {
         m_transform._RecomputeTransform();
     }
@@ -46,8 +48,14 @@ namespace loopxia
         return m_components;
     }
 
+    EventConnection SceneNodeImpl::EventListenParentChange(std::function<void(MovableObject*, MovableObject*)> func)
+    {
+
+    }
+
     SceneNode* CreateSceneNode(SceneNode* parent)
     {
-        return new SceneNodeImpl(static_cast<SceneNodeImpl*>(parent));
+        auto a = new SceneNodeImpl(static_cast<SceneNodeImpl*>(parent));
+        a->
     }
 }

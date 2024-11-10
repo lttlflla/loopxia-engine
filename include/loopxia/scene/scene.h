@@ -13,4 +13,6 @@ namespace loopxia
     };
 
     Scene* CreateScene();
+    Scene* LoadScene(const std::string& sceneFilePath);
+    void SaveScene(Scene* scene);
 }

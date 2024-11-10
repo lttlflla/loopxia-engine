@@ -1,26 +1,40 @@
 #pragma once
 
+#include <chrono>
+
 namespace loopxia
 {
     class GameTime
     {
     public:
-        GameTime(uint32_t elapsed, uint64_t total) : m_totalElapsed(total), m_elapsed(elapsed)
+        GameTime(std::chrono::nanoseconds elapsed, std::chrono::steady_clock::time_point timeNow) : m_timeNow(timeNow), m_elapsed(elapsed)
         {
         }
 
-        //The amount of elapsed game time milliseconds since the last update.
-        uint32_t ElapsedTime() const {
-            return m_elapsed;
+        //The amount of elapsed time since last update cycle
+        uint64_t ElapsedTimeNanosec() const {
+            return m_elapsed.count();
         }
         
-        // milliseconds since game started
-        uint64_t TotalTimeElapsed() const {
-            return m_totalElapsed;
+        uint64_t ElapsedTimeMilliseconds() const {
+            auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(m_elapsed);
+
+            // Extract the integer value of the milliseconds
+            uint64_t ms_int = static_cast<uint64_t>(ms.count());
+            return ms_int;
+        }
+
+        float ElapsedTimeSeconds() const {
+            return (float)ElapsedTimeMilliseconds() / 1000;
+        }
+
+        // nanoseconds since game started
+        std::chrono::steady_clock::time_point TimeNow() const {
+            return m_timeNow;
         }
 
     private:
-        uint64_t m_totalElapsed;
-        uint32_t m_elapsed;
+        std::chrono::steady_clock::time_point m_timeNow; // total active time
+        std::chrono::nanoseconds m_elapsed; // how much time has elapsed since last cycle
     };
 }

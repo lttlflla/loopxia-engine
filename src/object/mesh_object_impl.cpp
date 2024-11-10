@@ -1,4 +1,6 @@
-#include "loopxia/resource/mesh.h"
+#include "object/mesh_object_impl.h"
+#include "resource/material_impl.h"
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -7,34 +9,34 @@
 
 namespace loopxia
 {
-    const std::vector<Vector3>& Mesh::Vertices() const
+    const std::vector<Vector3>& MeshImpl::Vertices() const
     {
         return m_vertices;
     }
 
-    const std::vector<Vector3>& Mesh::Normals() const
+    const std::vector<Vector3>& MeshImpl::Normals() const
     {
         return m_normals;
     }
 
-    const std::vector<Vector2>& Mesh::UV() const
+    const std::vector<Vector2>& MeshImpl::UV() const
     {
         return m_uvs;
     }
 
-    const std::vector<int>& Mesh::Indices() const
+    const std::vector<int>& MeshImpl::Indices() const
     {
         return m_indices;
     }
 
-    const std::string Mesh::TextureFilePath() const
+    Material* MeshImpl::GetMaterial() const
     {
-        return m_textureFilePath;
+        return m_material;
     }
 
 
-	bool Mesh::LoadFromFile(const std::string& filePathStr) 
-	{
+    bool MeshImpl::LoadFromFile(const std::string& filePathStr)
+    {
         m_vertices.clear();
         m_normals.clear();
         m_indices.clear();
@@ -62,7 +64,7 @@ namespace loopxia
         // Access vertex data
         for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
             auto& aV = mesh->mVertices[i];
-            Vector3 v = {aV.x, aV.y, aV.z};
+            Vector3 v = { aV.x, aV.y, aV.z };
             m_vertices.push_back(v);
 
             auto& aN = mesh->mNormals[i];
@@ -70,7 +72,7 @@ namespace loopxia
             m_normals.push_back(n);
 
             auto& aUV = mesh->mTextureCoords[0][i]; // Assuming there's only one texture coordinate set
-            Vector2 uv = {aUV.x, aUV.y};
+            Vector2 uv = { aUV.x, aUV.y };
             m_uvs.push_back(uv);
 
             // Do something with the vertex, normal, and UV data
@@ -83,7 +85,7 @@ namespace loopxia
             for (unsigned int k = 0; k < face.mNumIndices; ++k) {
                 m_indices.push_back(face.mIndices[k]);
             }
-            
+
         }
 
         // Access material data
@@ -98,5 +100,5 @@ namespace loopxia
         }
 
         return true;
-	}
+    }
 }

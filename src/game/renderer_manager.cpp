@@ -1,5 +1,5 @@
 #include <SDL.h>
-#include "loopxia/render/renderer.h"
+#include "loopxia/game/render_manager.h"
 #include "loopxia/log.h"
 #include <format>
 #include <map>

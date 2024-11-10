@@ -1,10 +1,8 @@
 #pragma once
 
-#include "loopxia/scene/component/component.h"
-
 namespace loopxia
 {
-    class Camera : public Component
+    class Camera
     {
     public:
         virtual ~Camera() = default;

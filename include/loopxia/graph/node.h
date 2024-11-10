@@ -6,7 +6,7 @@
 namespace loopxia
 {
     template<class T>
-    class Node : public Object
+    class Node
     {
         typedef Node<T> NodeClass;
     public:

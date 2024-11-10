@@ -33,6 +33,7 @@ add_subdirectory(third_party/SDL)
 add_subdirectory(third_party/glm)
 add_subdirectory(third_party/glew-cmake)
 add_subdirectory(third_party/assimp)
+add_subdirectory(third_party/abseil-cpp)
 
 
 if(MSVC)
@@ -52,33 +53,32 @@ add_library (loopxia-engine
 "include/loopxia/time.h" 
 "include/loopxia/scene/script.h" 
 "include/loopxia/scene/scriptable_object.h" 
-"include/loopxia/scene/transform.h" 
+ 
 "src/loopxia.cpp" 
 "src/scene/transform_impl.cpp" 
 "src/scene/scene_node_impl.cpp" 
 "src/scene/scriptable_object.cpp" 
 "include/loopxia/render/sprite.h" 
 "include/loopxia/render/raymarch.h" 
-"include/loopxia/render/billboard.h" 
-"include/loopxia/render/renderer.h" 
-"src/render/renderer.cpp" 
+"include/loopxia/render/billboard.h"
 "src/log.cpp" 
 "include/loopxia/ui.h" 
 "include/loopxia/render/shader.h" 
 "src/render/shader.cpp" 
 "include/loopxia/render/render_buffer.h" 
 "src/render/render_buffer.cpp" 
-"src/scene/component/camera_impl.cpp" 
-"include/loopxia/scene/component/camera.h" 
+"src/object/camera_impl.cpp" 
+"include/loopxia/object/camera.h" 
 "include/loopxia/scene/scene.h" 
 "include/loopxia/graph/node.h" 
 "include/loopxia/bounding_volume/bounding_volume.h" 
 "src/bounding_volume/bounding_volume.cpp" 
 "src/math/math.cpp" 
 "src/object/object.cpp" 
-"src/resource/mesh.cpp" 
  
-"include/loopxia/scene/component/mesh_renderer.h" 
+ 
+"include/loopxia/render/mesh_renderer.h" 
+"src/render/mesh_renderer_impl.cpp"
 "include/loopxia/input/keyboard.h" 
 "include/loopxia/scene/hexagon_grid.h" 
 "src/editor/editor.cpp" 
@@ -88,8 +88,8 @@ add_library (loopxia-engine
 "src/game/camera_controller_impl.cpp"
 "src/scene/transform_impl.h" 
 "include/loopxia/scene/scene_transition.h" 
-"src/scene/component/camera_impl.h" 
-"src/scene/scene_impl.cpp"  "src/scene/component/mesh_renderer.cpp" "include/loopxia/render/render_manager.h" "src/scene/component/component_impl.h")
+"src/object/camera_impl.h" 
+"src/scene/scene_impl.cpp" "include/loopxia/game/render_manager.h" "src/scene/component/component_impl.h" "src/mutex.cpp" "include/loopxia/object/movable_object.h" "include/loopxia/object/instance_tracker.h" "include/loopxia/math/transform.h" "include/loopxia/math/math.h" "include/loopxia/object/mesh_object.h" "src/object/mesh_object_impl.cpp" "src/resource/material_impl.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET loopxia-engine PROPERTY CXX_STANDARD 20)
@@ -141,7 +141,7 @@ find_package(OpenGL REQUIRED)
 
 include_directories( ${OPENGL_INCLUDE_DIRS} "third_party")
 
-target_link_libraries(loopxia-engine PRIVATE SDL3-static  assimp  ${OPENGL_LIBRARIES} PUBLIC glm libglew_static)
+target_link_libraries(loopxia-engine PRIVATE SDL3-static  assimp absl::synchronization ${OPENGL_LIBRARIES} PUBLIC glm libglew_static)
 
 
 set(targets loopxia-engine)  # List of target names

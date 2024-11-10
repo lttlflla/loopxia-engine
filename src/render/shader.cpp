@@ -109,10 +109,10 @@ namespace loopxia
                 GLint sourceLength[] = { source.size() };
                 GLint shaderId;
                 switch (type) {
-                case Shader::ShaderType::FRAGMENT:
+                case Shader::ShaderType::kFragment:
                     shaderId = m_fragmentShader;
                     break;
-                case Shader::ShaderType::VERTEX:
+                case Shader::ShaderType::kVertex:
                     shaderId = m_vertexShader;
                     break;
                 }

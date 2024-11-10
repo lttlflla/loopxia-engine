@@ -1,12 +1,9 @@
 #pragma once
 
-#include "loopxia/math.h"
+#include "math.h"
 
 namespace loopxia
 {
-    // forward declaration
-    class SceneNode;
-
     class Transform
     {
     public:
