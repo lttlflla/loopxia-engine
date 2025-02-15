@@ -7,7 +7,7 @@
 
 namespace loopxia
 {
-    class SceneNode : private MovableObject
+    class SceneNode : protected virtual MovableObject
     {
     public:
         virtual ~SceneNode() = default;

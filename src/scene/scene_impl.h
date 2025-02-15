@@ -8,6 +8,7 @@ namespace loopxia
         SceneImpl();
 
         SceneNode* SceneRoot() override;
+        void Render() override;
 
     private:
         std::unique_ptr<SceneNode> m_root;

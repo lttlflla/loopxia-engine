@@ -1,9 +1,8 @@
-#include "scene/transform_impl.h"
-#include "loopxia/scene/scene_node.h"
+#include "object/transform_impl.h"
 
 namespace loopxia
 {
-    TransformImpl::TransformImpl(SceneNode* obj) : m_obj(obj)
+    TransformImpl::TransformImpl(MovableObject* obj) : m_obj(obj)
     {
     }
 

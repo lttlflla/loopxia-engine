@@ -8,7 +8,7 @@
 
 namespace loopxia
 {
-    class Mesh : public MovableObject, public InstanceTracker<Mesh>
+    class Mesh : public virtual MovableObject, public InstanceTracker<Mesh>
     {
     public:
         virtual const std::vector<Vector3>& Vertices() const = 0;
@@ -18,5 +18,5 @@ namespace loopxia
         virtual Material* GetMaterial() const = 0;
     };
 
-    Mesh* LoadFromFile(const std::string& filePath);
+    Mesh* MeshLoadFromFile(const std::string& filePath);
 }

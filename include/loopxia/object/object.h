@@ -8,7 +8,7 @@ namespace loopxia
     {
     public:
         Object();
-        ~Object();
+        virtual ~Object();
     };
 
 }

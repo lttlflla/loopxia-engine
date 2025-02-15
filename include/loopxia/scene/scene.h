@@ -10,6 +10,7 @@ namespace loopxia
         virtual ~Scene() = default;
 
         virtual SceneNode* SceneRoot() = 0;
+        virtual void Render() = 0;
     };
 
     Scene* CreateScene();

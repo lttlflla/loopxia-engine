@@ -1,10 +1,14 @@
-#include "scene/component/camera_impl.h"
+#include "object/camera_impl.h"
 
 namespace loopxia
 {
     CameraImpl::CameraImpl(const glm::vec3& position, float fov, float aspectRatio, float nearClip, float farClip)
         : m_position(position), m_lookAtDir(glm::vec3(0.0f, 0.0f, -1.0f)), m_up(glm::vec3(0.0f, 1.0f, 0.0f)),
         m_fov(fov), m_aspectRatio(aspectRatio), m_nearClip(nearClip), m_farClip(farClip) {
+
+        // fov is from the center axis to the edge, not from edge to edge, 
+        // so your 90.0 fov is actually a 180.0 fov(and it's a VFOV on top of that, so the anamorphic HFOV is way worse
+
         UpdateProjectionMatrix();
         UpdateViewMatrix();
     }
@@ -40,6 +44,7 @@ namespace loopxia
     }
 
     void CameraImpl::UpdateViewMatrix() {
+        // note the view matrix can become NaN if m_up and look direction is the same
         m_viewMatrix = glm::lookAt(m_position, m_position + m_lookAtDir, m_up);
     }
 

@@ -1,26 +1,40 @@
 #include "loopxia/scene/scene_node.h"
-#include "scene/transform_impl.h"
+#include "object/transform_impl.h"
+#include "object/movable_object_impl.h"
 
 namespace loopxia
 {
-    class SceneNodeImpl final : public SceneNode
+    class SceneNodeImpl final : public virtual SceneNode, public virtual MovableObjectImpl
     {
     public:
+        void OnParentChange(MovableObject* oldParent, MovableObject* newParent) final
+        {
+            MovableObjectImpl::OnParentChange(oldParent, newParent);
+        }
+
+        loopxia::Transform* Transform() final
+        {
+            return MovableObjectImpl::Transform();
+        }
+
+        EventConnection EventListenParentChange(std::function<bool(MovableObject*, MovableObject*)> func) final
+        {
+            return MovableObjectImpl::EventListenParentChange(func);
+        }
+
         SceneNodeImpl(SceneNodeImpl* parent);
 
-        void OnParentChange(MovableObject*, MovableObject*) override;
-        loopxia::Transform* Transform() override;
+        void AttachObject(MovableObject* obj) override;
+        void DetachObject(MovableObject* obj) override;
 
-        void AttachComponent(Component* obj) override;
-        void DetachComponent(Component* obj) override;
-        std::vector<Component*> GetAttachedComponents() override;
-
-        EventConnection SceneNodeImpl::EventListenParentChange(std::function<void(MovableObject*, MovableObject*)> func)
+        SceneNode* Parent();
+        void SetParent(SceneNode* parent);
+        std::unordered_set<SceneNode*> SceneNodeChildren();
+        std::vector<MovableObject*> GetAttachedObjects();
 
     private:
         SceneNodeImpl* m_parent;
-        loopxia::TransformImpl m_transform;
-        std::vector<Component*> m_components;
+        std::vector<MovableObject*> m_objects;
     };
 
     SceneNode* CreateSceneNode(SceneNode* parent);

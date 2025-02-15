@@ -8,9 +8,9 @@
 #include "loopxia/render/shader.h"
 #include "loopxia/render/render_buffer.h"
 
-#include "loopxia/resource/mesh.h"
+#include "loopxia/object/mesh_object.h"
+#include "loopxia/object/camera.h"
 #include "loopxia/render/mesh_renderer.h"
-#include "loopxia/scene/component/camera.h"
 
 #include "loopxia/game/game.h"
 #include "loopxia/game/camera_controller.h"

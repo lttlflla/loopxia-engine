@@ -55,7 +55,7 @@ add_library (loopxia-engine
 "include/loopxia/scene/scriptable_object.h" 
  
 "src/loopxia.cpp" 
-"src/scene/transform_impl.cpp" 
+"src/object/transform_impl.cpp" 
 "src/scene/scene_node_impl.cpp" 
 "src/scene/scriptable_object.cpp" 
 "include/loopxia/render/sprite.h" 
@@ -86,10 +86,10 @@ add_library (loopxia-engine
 "include/loopxia/game/game.h" 
 "src/game/game.cpp" 
 "src/game/camera_controller_impl.cpp"
-"src/scene/transform_impl.h" 
+"src/object/transform_impl.h" 
 "include/loopxia/scene/scene_transition.h" 
 "src/object/camera_impl.h" 
-"src/scene/scene_impl.cpp" "include/loopxia/game/render_manager.h" "src/scene/component/component_impl.h" "src/mutex.cpp" "include/loopxia/object/movable_object.h" "include/loopxia/object/instance_tracker.h" "include/loopxia/math/transform.h" "include/loopxia/math/math.h" "include/loopxia/object/mesh_object.h" "src/object/mesh_object_impl.cpp" "src/resource/material_impl.cpp")
+"src/scene/scene_impl.cpp" "include/loopxia/game/render_manager.h" "src/mutex.cpp" "include/loopxia/object/movable_object.h" "include/loopxia/object/instance_tracker.h" "include/loopxia/object/transform.h" "include/loopxia/math/math.h" "include/loopxia/object/mesh_object.h" "src/object/mesh_object_impl.cpp" "src/resource/material_impl.cpp" "src/object/movable_object_impl.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET loopxia-engine PROPERTY CXX_STANDARD 20)

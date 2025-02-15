@@ -7,10 +7,6 @@ namespace loopxia
         auto sceneNode = *sceneNodes.rbegin();
         sceneNodes.pop_back();
 
-        auto components = sceneNode->GetAttachedComponents();
-        for (auto c : components) {
-            if(auto r = dynamic_cast<>)
-        }
     }
 
     void SceneRendererImpl::SetScene(Scene* scene)

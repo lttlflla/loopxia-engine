@@ -1,8 +1,10 @@
 #pragma once
 
+#include "loopxia/object/movable_object.h"
+
 namespace loopxia
 {
-    class Camera
+    class Camera : public virtual MovableObject
     {
     public:
         virtual ~Camera() = default;

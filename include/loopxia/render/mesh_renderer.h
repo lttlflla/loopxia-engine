@@ -1,6 +1,6 @@
 #pragma once
 
-#include "loopxia/resource/mesh.h"
+#include "loopxia/object/mesh_object.h"
 #include "loopxia/render/renderable.h"
 
 namespace loopxia

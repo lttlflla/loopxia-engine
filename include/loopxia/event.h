@@ -63,7 +63,11 @@ namespace loopxia
     class EventConnection
     {
     public:
-        EventConnection(std::shared_ptr<EventConnectionImpl> impl)
+        EventConnection()
+        {
+        }
+
+        EventConnection(std::shared_ptr<EventConnectionImpl> impl) : m_impl(impl)
         {
         }
 
@@ -74,23 +78,39 @@ namespace loopxia
         // reconnect
         void Connect()
         {
+            if (!m_impl) {
+                return;
+            }
+
             m_impl->Connect();
         }
 
         // temporary disconnect
         void Disconnect()
         {
+            if (!m_impl) {
+                return;
+            }
+
             m_impl->Disconnect();
         }
 
         // distroy the callback
         void Destroy()
         {
+            if (!m_impl) {
+                return;
+            }
+
             m_impl->Destroy();
         }
 
         bool IsConnected()
         {
+            if (!m_impl) {
+                return false;
+            }
+
             return m_impl->IsConnected();
         }
 

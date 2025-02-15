@@ -14,7 +14,7 @@ namespace loopxia
         {
         }
 
-        ~Node()
+        virtual ~Node()
         {
         }
 
@@ -29,10 +29,11 @@ namespace loopxia
                 m_parent->RemoveChild(this);
             }
 
+            auto oldParent = m_parent;
             m_parent = parent;
             m_parent->AddChild(this);
 
-            T::OnParentChange();
+            T::OnParentChange(oldParent, parent);
         }
 
         std::unordered_set<T*> Children()

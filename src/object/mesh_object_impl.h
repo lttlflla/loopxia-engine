@@ -1,12 +1,28 @@
 #pragma once
 
 #include "loopxia/object/mesh_object.h"
+#include "movable_object_impl.h"
 
 namespace loopxia
 {
-    class MeshImpl : public Mesh
+    class MeshImpl : public virtual Mesh, public virtual MovableObjectImpl
     {
     public:
+        void OnParentChange(MovableObject* oldParent, MovableObject* newParent) final
+        {
+            MovableObjectImpl::OnParentChange(oldParent, newParent);
+        }
+
+        loopxia::Transform* Transform() final
+        {
+            return MovableObjectImpl::Transform();
+        }
+
+        EventConnection EventListenParentChange(std::function<bool(MovableObject*, MovableObject*)> func) final
+        {
+            return MovableObjectImpl::EventListenParentChange(func);
+        }
+
         bool LoadFromFile(const std::string& filePath);
 
         const std::vector<Vector3>& Vertices() const override;

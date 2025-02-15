@@ -24,7 +24,7 @@ namespace loopxia
             return true;
         };
 
-        game->KeyDown.connect(keyDownFunc);
+        m_keyDownEventConnection = game->KeyDown.connect(keyDownFunc);
 
         auto keyUpFunc = [this](Event& evt, KeyEvent& keyEvt) -> bool {
             switch (keyEvt.keyCode) {
@@ -53,14 +53,14 @@ namespace loopxia
             return true;
         };
 
-        game->KeyUp.connect(keyUpFunc);
+        m_keyUpEventConnection = game->KeyUp.connect(keyUpFunc);
 
         auto updateEventFunc = [this](const GameTime& time) -> bool {
             Update(time);
             return true;
         };
 
-        game->GameUpdate.connect(updateEventFunc);
+        m_updateEventConnection = game->GameUpdate.connect(updateEventFunc);
     }
 
     void CameraControllerImpl::SetCamera(loopxia::Camera* camera)

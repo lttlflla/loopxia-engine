@@ -1,14 +1,16 @@
-#include "loopxia/scene/transform.h"
-#include "loopxia/scene/scene_node.h"
+#pragma once
+
+#include "loopxia/object/transform.h"
+#include "loopxia/object/movable_object.h"
 
 namespace loopxia
 {
     class TransformImpl final : public Transform
     {
-        friend class SceneNodeImpl;
+        friend class MovableObjectImpl;
 
     public:
-        TransformImpl(SceneNode* obj);
+        TransformImpl(MovableObject* obj);
 
         // world space position
         inline Vector3 Position() const override;
@@ -51,6 +53,6 @@ namespace loopxia
         Vector3 m_localPosition;
         Quaternion m_localRotation;
 
-        SceneNode* m_obj;
+        MovableObject* m_obj;
     };
 }

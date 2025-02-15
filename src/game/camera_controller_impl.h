@@ -17,5 +17,10 @@ namespace loopxia
         loopxia::Vector3 m_cameraVelocity;
         int m_camDirUpDown = 0;
         int m_camDirLeftRight = 0;
+
+        EventConnection m_keyDownEventConnection;
+        EventConnection m_keyUpEventConnection;
+        EventConnection m_updateEventConnection;
+
     };
 }

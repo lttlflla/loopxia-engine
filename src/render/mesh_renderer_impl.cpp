@@ -33,6 +33,7 @@ namespace loopxia
             void main() {
                 FragColor =  texture(textureSampler, TexCoord);
 //FragColor = vec4(TexCoord.x, TexCoord.y, 1.0, 1.0);
+//FragColor = vec4(1.0, 1.0, 1.0, 1.0);
             }
         )";
     }
@@ -51,7 +52,7 @@ namespace loopxia
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
         int width, height, channels;
-        unsigned char* image = stbi_load(mesh->TextureFilePath().c_str(), &width, &height, &channels, STBI_rgb_alpha);
+        unsigned char* image = stbi_load(mesh->GetMaterial()->GetTextureFilePath().c_str(), &width, &height, &channels, STBI_rgb_alpha);
         if (!image) {
             LogError("Failed to load image");
             return;
@@ -111,15 +112,15 @@ namespace loopxia
         auto& uvs = mesh->UV();
         m_numUVs = uvs.size();
         m_uvBuffer.SetData(RenderBufferDataType::kUVBuffer, (void*)&uvs[0], 2 * m_numUVs * sizeof(float));
-        m_uvBuffer.Bind();
 
         // uv attribute
         unsigned int uv_position = m_meshShader.GetAttribute("uv");
         glVertexAttribPointer(uv_position, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0 /*offset*/);
         glEnableVertexAttribArray(uv_position);
 
-
+        glBindVertexArray(0);
         p_LoadTexture(mesh);
+
         return 0;
     }
 
@@ -144,28 +145,30 @@ namespace loopxia
         //}
 
 
-        //Set vertex data
+        //unsigned int positionPos = m_meshShader.GetAttribute("aPos");
+        //glEnableVertexAttribArray(positionPos); 
+        ////Set vertex data
         //m_vertexBuffer.Bind();
-        //auto e = glGetError();
-        //auto attribute = 0;// m_meshShader.GetAttribute("LVertexPos2D");
-        ////Enable vertex position
-        ////glEnableVertexAttribArray(attribute);
-        ////glVertexAttribPointer(attribute, 3 /* number of components per generic vertex attribute */, GL_FLOAT, GL_FALSE, 3 * sizeof(float) /* stride, 0 to indicate tightly packed */, NULL);
-        //e = glGetError();
-        ////Set index data and render
-        ////m_indexBuffer.Bind();
-        //e = glGetError();
-        //glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, NULL);
-        //e = glGetError();
-        ////Disable vertex position
-        //glDisableVertexAttribArray(attribute);
-        //e = glGetError();
-        ////Unbind program
+        //glVertexAttribPointer(attribute, 3 /* number of components per generic vertex attribute */, GL_FLOAT, GL_FALSE, 3 * sizeof(float) /* stride, 0 to indicate tightly packed */, NULL);
 
+        // bind vertex array
         glBindVertexArray(m_VAO);
 
+        //unsigned int positionPos = m_meshShader.GetAttribute("aPos");
+        //glVertexAttribPointer(positionPos, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0 /*offset*/);
+        //glEnableVertexAttribArray(positionPos);
+        //// uv attribute
+        //unsigned int uv_position = m_meshShader.GetAttribute("uv");
+        //glVertexAttribPointer(uv_position, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0 /*offset*/);
+        //glEnableVertexAttribArray(uv_position);
+
+
+        // set active texture
         glActiveTexture(GL_TEXTURE0);
+
+        // bind texture
         glBindTexture(GL_TEXTURE_2D, m_textureID);
+
         auto textureLocation = m_meshShader.GetUniformLocation("textureSampler");
         glUniform1i(textureLocation, 0);
 
@@ -175,6 +178,9 @@ namespace loopxia
 
         m_meshShader.End();
         e = glGetError();
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        glBindVertexArray(0);
 
     }
 

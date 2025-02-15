@@ -12,6 +12,11 @@ namespace loopxia
         return m_root.get();
     }
 
+    void SceneImpl::Render()
+    {
+
+    }
+
     Scene* CreateScene()
     {
         return new SceneImpl();

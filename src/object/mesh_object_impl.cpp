@@ -95,10 +95,18 @@ namespace loopxia
             if (material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) == AI_SUCCESS) {
                 // Load the texture using the texture path
                 LogInfo(std::string("Diffuse texture path: ") + texturePath.C_Str());
-                m_textureFilePath = filePath.parent_path().generic_string() + "/" + texturePath.C_Str();
+                m_material = CreateMaterialFromTextureFilePath(filePath.parent_path().generic_string() + "/" + texturePath.C_Str());
             }
         }
 
         return true;
+    }
+
+
+    Mesh* MeshLoadFromFile(const std::string& filePath)
+    {
+        auto pMesh = new MeshImpl();
+        pMesh->LoadFromFile(filePath);
+        return pMesh;
     }
 }

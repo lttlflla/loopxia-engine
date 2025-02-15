@@ -2,60 +2,43 @@
 
 namespace loopxia
 {
-    SceneNodeImpl::SceneNodeImpl(SceneNodeImpl* parent) : m_parent(parent), m_transform(this)
+    SceneNodeImpl::SceneNodeImpl(SceneNodeImpl* parent) : m_parent(parent)
     {
         if (m_parent) {
             m_parent->AddChild(this);
         }
-
-        this->
     }
 
-    void SceneNodeImpl::OnParentChange(MovableObject*, MovableObject*)
-    {
-        m_transform._RecomputeTransform();
-    }
 
-    loopxia::Transform* SceneNodeImpl::Transform()
+    void SceneNodeImpl::AttachObject(MovableObject* obj)
     {
-        return &m_transform;
-    }
-    
-    void SceneNodeImpl::AttachComponent(Component* obj)
-    {
-        auto it = std::find(m_components.begin(), m_components.end(), obj);
-        if (it != m_components.end()) {
+        auto it = std::find(m_objects.begin(), m_objects.end(), obj);
+        if (it != m_objects.end()) {
             // already exist
             return;
         }
 
-        m_components.push_back(obj);
+        m_objects.push_back(obj);
     }
 
-    void SceneNodeImpl::DetachComponent(Component* obj)
+    void SceneNodeImpl::DetachObject(MovableObject* obj)
     {
-        auto it = std::find(m_components.begin(), m_components.end(), obj);
-        if (it == m_components.end()) {
+        auto it = std::find(m_objects.begin(), m_objects.end(), obj);
+        if (it == m_objects.end()) {
             // does not exist
             return;
         }
 
-        m_components.erase(it);
+        m_objects.erase(it);
     }
 
-    std::vector<Component*> SceneNodeImpl::GetAttachedComponents()
+    std::vector<MovableObject*> SceneNodeImpl::GetAttachedObjects()
     {
-        return m_components;
-    }
-
-    EventConnection SceneNodeImpl::EventListenParentChange(std::function<void(MovableObject*, MovableObject*)> func)
-    {
-
+        return m_objects;
     }
 
     SceneNode* CreateSceneNode(SceneNode* parent)
     {
-        auto a = new SceneNodeImpl(static_cast<SceneNodeImpl*>(parent));
-        a->
+        return new SceneNodeImpl(dynamic_cast<SceneNodeImpl*>(parent));
     }
 }

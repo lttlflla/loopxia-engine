@@ -1,6 +1,6 @@
 #pragma once
 
-#include "loopxia/scene/component/camera.h"
+#include "loopxia/object/camera.h"
 #include "loopxia/math.h"
 #include "loopxia/game/game.h"
 

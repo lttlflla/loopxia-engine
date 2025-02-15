@@ -37,14 +37,14 @@ namespace loopxia
                 return true;
             };
 
-            WindowResize.connect(resizeFunc);
+            m_windowResizeEventConnection = WindowResize.connect(resizeFunc);
 
             auto  closeWindowFunc = [this](Event& evt, WindowDetails& details) -> bool {
                 m_bCloseWindow = true;
                 return true;
             };
 
-            WindowQuitRequest.connect(closeWindowFunc);
+            m_windowQuitEventConnection = WindowQuitRequest.connect(closeWindowFunc);
         }
 
         void Run() override
@@ -140,7 +140,7 @@ namespace loopxia
         {
             //Clear color buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+            
             _Update();
 
             if (!m_scene) {
@@ -151,7 +151,6 @@ namespace loopxia
 
             // cull visible
             // render visible
-
         }
 
         void _resize(int width, int height)
@@ -174,6 +173,9 @@ namespace loopxia
         std::chrono::time_point<std::chrono::steady_clock> m_lastUpdateTime;
             
         Scene* m_scene = nullptr;
+
+        EventConnection m_windowQuitEventConnection;
+        EventConnection m_windowResizeEventConnection;
     };
 
     Game* CreateGame()
