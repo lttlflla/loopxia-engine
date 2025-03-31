@@ -49,47 +49,73 @@ set(LOOPXIA_SOURCE_DIR "src")
 
 # Add source to this project's executable.
 add_library (loopxia-engine 
+
 "include/loopxia/object/object.h" 
 "include/loopxia/time.h" 
-"include/loopxia/scene/script.h" 
-"include/loopxia/scene/scriptable_object.h" 
  
 "src/loopxia.cpp" 
-"src/object/transform_impl.cpp" 
-"src/scene/scene_node_impl.cpp" 
-"src/scene/scriptable_object.cpp" 
+"src/log.cpp" 
+"src/mutex.cpp" 
+
+"include/loopxia/ui.h" 
+
+"include/loopxia/object/camera.h" 
+"include/loopxia/object/movable_object.h" 
+"include/loopxia/object/instance_tracker.h" 
+"include/loopxia/object/transform.h" 
+
 "include/loopxia/render/sprite.h" 
 "include/loopxia/render/raymarch.h" 
 "include/loopxia/render/billboard.h"
-"src/log.cpp" 
-"include/loopxia/ui.h" 
 "include/loopxia/render/shader.h" 
-"src/render/shader.cpp" 
 "include/loopxia/render/render_buffer.h" 
-"src/render/render_buffer.cpp" 
-"src/object/camera_impl.cpp" 
-"include/loopxia/object/camera.h" 
-"include/loopxia/scene/scene.h" 
+"include/loopxia/render/mesh_renderer.h" 
+
 "include/loopxia/graph/node.h" 
 "include/loopxia/bounding_volume/bounding_volume.h" 
-"src/bounding_volume/bounding_volume.cpp" 
-"src/math/math.cpp" 
-"src/object/object.cpp" 
- 
- 
-"include/loopxia/render/mesh_renderer.h" 
-"src/render/mesh_renderer_impl.cpp"
-"include/loopxia/input/keyboard.h" 
+
+"include/loopxia/scene/scene.h" 
+"include/loopxia/scene/script.h" 
+"include/loopxia/scene/scriptable_object.h" 
 "include/loopxia/scene/hexagon_grid.h" 
-"src/editor/editor.cpp" 
+"include/loopxia/scene/avatar.h" 
+"include/loopxia/scene/scene_transition.h"
+ 
+"include/loopxia/input/keyboard.h" 
 "include/loopxia/editor/editor.h" 
 "include/loopxia/game/game.h" 
+"include/loopxia/game/render_manager.h" 
+"include/loopxia/math/math.h" 
+
+"src/bounding_volume/bounding_volume.cpp" 
+"src/math/math.cpp" 
+
+"src/render/shader.cpp" 
+"src/render/render_buffer.cpp" 
+"src/render/mesh_renderer_impl.cpp"
+"src/editor/editor.cpp" 
+
+"src/object/camera_impl.h" 
+"src/object/transform_impl.h" 
+"src/object/object.cpp" 
+"src/object/camera_impl.cpp"  
+"src/object/transform_impl.cpp" 
+"src/object/movable_object_impl.cpp" 
+
+"src/resource/bone_impl.h" 
+"src/resource/material_impl.cpp" 
+"src/resource/mesh_impl.cpp" 
+"src/resource/bone_impl.cpp" 
+
+"src/scene/scene_impl.cpp" 
+"src/scene/scene_node_impl.cpp" 
+"src/scene/scriptable_object.cpp"
+"src/scene/scene_renderer_impl.cpp"
+
 "src/game/game.cpp" 
 "src/game/camera_controller_impl.cpp"
-"src/object/transform_impl.h" 
-"include/loopxia/scene/scene_transition.h" 
-"src/object/camera_impl.h" 
-"src/scene/scene_impl.cpp" "include/loopxia/game/render_manager.h" "src/mutex.cpp" "include/loopxia/object/movable_object.h" "include/loopxia/object/instance_tracker.h" "include/loopxia/object/transform.h" "include/loopxia/math/math.h" "include/loopxia/object/mesh_object.h" "src/object/mesh_object_impl.cpp" "src/resource/material_impl.cpp" "src/object/movable_object_impl.cpp")
+
+ "src/scene/avatar_impl.h" "src/scene/avatar_impl.cpp"     "include/loopxia/resource/resource_manager.h" "include/loopxia/resource/texture.h" "include/loopxia/resource/resource.h" "include/loopxia/resource/resource_group.h" "include/loopxia/resource/resource_loader.h" "src/resource/resource_manager_impl.h")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET loopxia-engine PROPERTY CXX_STANDARD 20)

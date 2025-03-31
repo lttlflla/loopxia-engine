@@ -6,7 +6,7 @@
 namespace loopxia
 {
     // scene renderer renders a scene
-    class SceneRenderer : public Object, public InstanceTracker<SceneRenderer>, public Renderer
+    class SceneRenderer : public Object, public Renderer, public InstanceTracker<SceneRenderer>
     {
     public:
         virtual ~SceneRenderer() = default;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "loopxia/resource/mesh.h"
 #include "loopxia/render/mesh_renderer.h"
 #include "loopxia/render/shader.h"
 #include "loopxia/render/render_buffer.h"

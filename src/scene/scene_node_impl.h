@@ -24,17 +24,14 @@ namespace loopxia
 
         SceneNodeImpl(SceneNodeImpl* parent);
 
-        void AttachObject(MovableObject* obj) override;
-        void DetachObject(MovableObject* obj) override;
+        void AttachObject(Object* obj) override;
+        void DetachObject(Object* obj) override;
 
-        SceneNode* Parent();
-        void SetParent(SceneNode* parent);
-        std::unordered_set<SceneNode*> SceneNodeChildren();
-        std::vector<MovableObject*> GetAttachedObjects();
+        std::vector<Object*> GetAttachedObjects();
 
     private:
         SceneNodeImpl* m_parent;
-        std::vector<MovableObject*> m_objects;
+        std::vector<Object*> m_objects;
     };
 
     SceneNode* CreateSceneNode(SceneNode* parent);

@@ -10,7 +10,7 @@ namespace loopxia
     }
 
 
-    void SceneNodeImpl::AttachObject(MovableObject* obj)
+    void SceneNodeImpl::AttachObject(Object* obj)
     {
         auto it = std::find(m_objects.begin(), m_objects.end(), obj);
         if (it != m_objects.end()) {
@@ -21,7 +21,7 @@ namespace loopxia
         m_objects.push_back(obj);
     }
 
-    void SceneNodeImpl::DetachObject(MovableObject* obj)
+    void SceneNodeImpl::DetachObject(Object* obj)
     {
         auto it = std::find(m_objects.begin(), m_objects.end(), obj);
         if (it == m_objects.end()) {
@@ -32,7 +32,7 @@ namespace loopxia
         m_objects.erase(it);
     }
 
-    std::vector<MovableObject*> SceneNodeImpl::GetAttachedObjects()
+    std::vector<Object*> SceneNodeImpl::GetAttachedObjects()
     {
         return m_objects;
     }

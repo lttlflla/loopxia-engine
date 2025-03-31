@@ -40,6 +40,32 @@ namespace loopxia
         {
             return m_children;
         }
+        
+        template<typename C>
+        std::vector<C*> ChildrenByType()
+        {
+            std::vector<C*> childrensOfType;
+            for (auto& c : m_children) {
+                if (auto cc = dynamic_cast<C*>(c)) {
+                    childrensOfType.push_back(cc);
+                }
+            }
+            return childrensOfType;
+        }
+
+        template<typename C>
+        std::vector<C*> AllDescendantByType()
+        {
+            std::vector<C*> childrensOfType;
+            for (auto& c : m_children) {
+                if (auto cc = dynamic_cast<C*>(c)) {
+                    childrensOfType.push_back(cc);
+                }
+                auto descentants = c->AllDescendantByType();
+                childrensOfType.insert(descentants.begin(), descentants.end());
+            }
+            return childrensOfType;
+        }
 
     protected:
         void AddChild(T* obj)

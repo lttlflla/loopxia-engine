@@ -7,6 +7,8 @@ namespace loopxia
     class Material
     {
     public:
+        virtual ~Material() = default;
+
         virtual std::string GetTextureFilePath(int index = 0) = 0;
     };
 

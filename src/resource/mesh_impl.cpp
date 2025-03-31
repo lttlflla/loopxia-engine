@@ -1,4 +1,4 @@
-#include "object/mesh_object_impl.h"
+#include "resource/mesh_impl.h"
 #include "resource/material_impl.h"
 
 #include <assimp/Importer.hpp>
@@ -9,6 +9,31 @@
 
 namespace loopxia
 {
+    MeshImpl::~MeshImpl()
+    {
+        delete m_pMaterial;
+    }
+
+    void MeshImpl::SetVectices(std::vector<Vector3>& vertices)
+    {
+        m_vertices = vertices;
+    }
+
+    void MeshImpl::SetNormals(std::vector<Vector3>& normals)
+    {
+        m_normals = normals;
+    }
+
+    void MeshImpl::SetUV(std::vector<Vector2>& uvs)
+    {
+        m_uvs = uvs;
+    }
+
+    void MeshImpl::SetIndices(std::vector<int>& indices)
+    {
+        m_indices = indices;
+    }
+
     const std::vector<Vector3>& MeshImpl::Vertices() const
     {
         return m_vertices;
@@ -31,7 +56,7 @@ namespace loopxia
 
     Material* MeshImpl::GetMaterial() const
     {
-        return m_material;
+        return m_pMaterial;
     }
 
 
@@ -87,7 +112,7 @@ namespace loopxia
             }
 
         }
-
+        
         // Access material data
         if (mesh->mMaterialIndex >= 0) {
             aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -95,7 +120,23 @@ namespace loopxia
             if (material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) == AI_SUCCESS) {
                 // Load the texture using the texture path
                 LogInfo(std::string("Diffuse texture path: ") + texturePath.C_Str());
-                m_material = CreateMaterialFromTextureFilePath(filePath.parent_path().generic_string() + "/" + texturePath.C_Str());
+                m_pMaterial = (MaterialImpl*)CreateMaterialFromTextureFilePath(filePath.parent_path().generic_string() + "/" + texturePath.C_Str());
+            }
+        }
+
+        // load bone data
+        if (mesh->HasBones()) {
+            m_boneWeights.resize(m_vertices.size());
+            for (int i = 0; i < mesh->mNumBones; i++) {
+                auto bone = mesh->mBones[i];
+                for (int w = 0; w < bone->mNumWeights; w++) {
+                    auto vertexId = bone->mWeights[w].mVertexId;
+
+                    BoneWeight bw;
+                    bw.boneId = i;
+                    bw.boneWeight = bone->mWeights[w].mWeight;
+                    m_boneWeights[vertexId].push_back(bw);
+                }
             }
         }
 

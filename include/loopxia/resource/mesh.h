@@ -3,14 +3,23 @@
 #include <string>
 #include <vector>
 #include "loopxia/math.h"
-#include "loopxia/object/movable_object.h"
+#include "loopxia/resource/resource.h"
 #include "loopxia/resource/material.h"
 
 namespace loopxia
 {
-    class Mesh : public virtual MovableObject, public InstanceTracker<Mesh>
+    // mesh can contain a single mesh or a hierarchy of meshes
+    // 
+    class Mesh : public Resource, public InstanceTracker<Mesh>
     {
     public:
+        virtual ~Mesh() = default;
+
+        virtual void SetVectices(std::vector<Vector3>& vertices) = 0;
+        virtual void SetNormals(std::vector<Vector3>& normals) = 0;
+        virtual void SetUV(std::vector<Vector2>& uv) = 0;
+        virtual void SetIndices(std::vector<int>& indices) = 0;
+
         virtual const std::vector<Vector3>& Vertices() const = 0;
         virtual const std::vector<Vector3>& Normals() const = 0;
         virtual const std::vector<Vector2>& UV() const = 0;
