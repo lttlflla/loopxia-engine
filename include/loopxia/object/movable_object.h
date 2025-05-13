@@ -14,9 +14,12 @@ namespace loopxia
     public:
         virtual ~MovableObject() = default;
 
-        virtual void OnParentChange(MovableObject*, MovableObject*) = 0;
         virtual loopxia::Transform* Transform() = 0;
         virtual EventConnection EventListenParentChange(std::function<bool(MovableObject*, MovableObject*)> func ) = 0;
+
+    protected:
+        friend class Node<MovableObject>;
+        virtual void OnParentChange(MovableObject* oldParent, MovableObject* newParent) = 0;
     };
 
 }

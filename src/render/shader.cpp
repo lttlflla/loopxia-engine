@@ -1,6 +1,9 @@
 #include "loopxia/render/shader.h"
 #include "loopxia/log.h"
 #include <format>
+#include <string>
+#include <fstream>
+#include <streambuf>
 
 #include <GL/glew.h> // opengl extension
 #include <SDL3/SDL_opengl.h>
@@ -193,6 +196,20 @@ namespace loopxia
     void Shader::End()
     {
         m_impl->End();
+    }
+
+    void Shader::LoadFromFile(const std::string& shaderFile, ShaderType type)
+    {
+        std::ifstream t(shaderFile);
+        
+        if (t.fail()) {
+            LogError(std::format("[Shader::LoadFromFile] failed: {}", shaderFile));
+            return;
+        }
+
+        std::string str((std::istreambuf_iterator<char>(t)),
+            std::istreambuf_iterator<char>());
+        Load(str, type);
     }
 
     void Shader::Load(const std::string& source, Shader::ShaderType type) 

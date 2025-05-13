@@ -2,17 +2,32 @@
 
 namespace loopxia
 {
-    AvatarImpl::AvatarImpl()
+    AvatarImpl::AvatarImpl(SceneNode* parent) : SceneNodeImpl<Avatar>(parent)
     {
     }
 
-    void AvatarImpl::SetMesh(RefCountedObject<Mesh> mesh)
+    void AvatarImpl::SetMesh(std::shared_ptr<Mesh> mesh)
     {
         m_mesh = mesh;
     }
 
-    RefCountedObject<Mesh> AvatarImpl::GetMesh()
+    std::shared_ptr<Mesh> AvatarImpl::GetMesh()
     {
         return m_mesh;
+    }
+
+    void AvatarImpl::SetAnimation()
+    {
+
+    }
+
+    Avatar* CreateAvatar()
+    {
+        return new AvatarImpl;
+    }
+
+    void DestroyAvatar(Avatar* avatar)
+    {
+        delete avatar;
     }
 }

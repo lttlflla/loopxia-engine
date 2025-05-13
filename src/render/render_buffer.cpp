@@ -27,6 +27,18 @@ namespace loopxia
             //    GL_UNIFORM_BUFFER	Uniform block storage
 
         public:
+            RenderBufferImpl(GLuint bufferId, RenderBufferDataType dataType) : m_bufferId(bufferId)
+            {
+                switch (dataType) {
+                case RenderBufferDataType::kIndexBuffer:
+                    m_glDataType = GL_ELEMENT_ARRAY_BUFFER;
+                    break;
+                case RenderBufferDataType::kVertexBuffer:
+                case RenderBufferDataType::kUVBuffer:
+                    m_glDataType = GL_ARRAY_BUFFER;
+                    break;
+                }
+            }
 
             ~RenderBufferImpl()
             {
@@ -37,24 +49,15 @@ namespace loopxia
 
             void SetData(RenderBufferDataType dataType, void* data, size_t dataSize)
             {
-                if (m_bGenerated) {
-                    glDeleteBuffers(1, &m_bufferId);
-                }
+                //if (m_bGenerated) {
+                //    glDeleteBuffers(1, &m_bufferId);
+                //}
                 
-                glGenBuffers(1, &m_bufferId);
+                //glGenBuffers(1, &m_bufferId);
 
-                switch (dataType) {
-                case RenderBufferDataType::kIndexBuffer:
-                    m_glDataType = GL_ELEMENT_ARRAY_BUFFER;
-                    break; 
-                case RenderBufferDataType::kVertexBuffer:
-                case RenderBufferDataType::kUVBuffer:
-                    m_glDataType = GL_ARRAY_BUFFER;
-                    break;
-                }
-
-                glBindBuffer(m_glDataType, m_bufferId);
                 auto e = glGetError();
+                Bind();
+                e = glGetError();
                 glBufferData(m_glDataType, dataSize, data, GL_STATIC_DRAW);
                 e = glGetError();
 
@@ -73,9 +76,9 @@ namespace loopxia
         };
     }
 
-    RenderBuffer::RenderBuffer()
+    RenderBuffer::RenderBuffer(GLuint bufferId, RenderBufferDataType dataType)
     {
-        m_impl = new impl::RenderBufferImpl;
+        m_impl = new impl::RenderBufferImpl(bufferId, dataType);
     }
 
     RenderBuffer::~RenderBuffer()

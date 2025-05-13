@@ -9,6 +9,6 @@ namespace loopxia
     public:
         Object();
 
-        virtual ~Object() = default;
+        virtual ~Object();
     };
 }

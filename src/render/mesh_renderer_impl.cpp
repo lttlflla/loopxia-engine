@@ -2,52 +2,56 @@
 #include "loopxia/render/shader.h"
 #include "loopxia/render/render_buffer.h"
 #include <GL/glew.h>
-#include <glm/gtc/type_ptr.hpp>
+
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
 
+#define SSBO_INDEX_VERTICES        0
+#define SSBO_INDEX_PER_OBJ_DATA    1
+#define SSBO_INDEX_MATERIAL_COLORS 2
+#define SSBO_INDEX_DIFFUSE_MAPS    3
+#define SSBO_INDEX_NORMAL_MAPS     4
+
 namespace loopxia
 {
-    namespace
+    MeshRenderInstanceImpl::MeshRenderInstanceImpl(int instanceId, MeshRendererImpl* pRenderer, std::shared_ptr<Mesh> pMesh) :
+        m_instanceId(instanceId)
+        , m_pRenderer(pRenderer)
+        , m_pMesh(pMesh)
     {
-        // Define vertex shader source code
-        const char* vertexShaderSource = R"(#version 330 core
-    in vec3 aPos;
-    in vec2 uv;
-    out vec2 TexCoord;
-    uniform mat4 mvp;
-    void main() {
-       gl_Position = mvp * vec4(aPos, 1.0) ;
-       TexCoord = uv;
-            })";
-
-        // Define fragment shader source code
-        const char* fragmentShaderSource = R"(
-            #version 330 core
-
-            in vec2 TexCoord;
-            out vec4 FragColor;
-            uniform sampler2D textureSampler;
-
-            void main() {
-                FragColor =  texture(textureSampler, TexCoord);
-//FragColor = vec4(TexCoord.x, TexCoord.y, 1.0, 1.0);
-//FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-            }
-        )";
     }
 
-    MeshRendererImpl::MeshRendererImpl()
+    Matrix4x4 MeshRenderInstanceImpl::GetWorldMatrix()
     {
-        //m_meshShader.Load("#version 140\nin vec3 LVertexPos3D; void main() { gl_Position = vec4( LVertexPos3D.x, LVertexPos3D.y, LVertexPos3D.z, 1 ); }", Shader::ShaderType::VERTEX);
-        m_meshShader.Load(vertexShaderSource, Shader::ShaderType::kVertex);
-        //m_meshShader.Load("#version 140\nout vec4 LFragment; void main() { LFragment = vec4( 1.0, 1.0, 1.0, 1.0 ); }", Shader::ShaderType::FRAGMENT);
-        m_meshShader.Load(fragmentShaderSource, Shader::ShaderType::kFragment);
-        m_meshShader.Link();
+        return m_worldMatrix;
     }
 
-    void MeshRendererImpl::p_LoadTexture(const Mesh* mesh)
+    void MeshRenderInstanceImpl::SetWorldMatrix(Matrix4x4 m)
+    {
+        m_worldMatrix = m;
+    }
+
+    void MeshRenderInstanceImpl::SetAnimation(AnimationState& state)
+    {
+    }
+
+    AnimationState MeshRenderInstanceImpl::GetAnimationState() const
+    {
+        return m_animationState;
+    }
+
+    std::shared_ptr<Mesh> MeshRenderInstanceImpl::GetMesh()
+    {
+        return m_pMesh;
+    }
+
+    MeshRendererImpl::MeshRendererImpl() :
+        m_shader("assets/shaders/mesh.vs", "assets/shaders/mesh.fs")
+    {
+    }
+
+    void MeshRendererImpl::p_LoadTexture(const std::shared_ptr<Mesh> mesh, MeshRenderSetup* setup)
     {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
@@ -58,8 +62,8 @@ namespace loopxia
             return;
         }
 
-        glGenTextures(1, &m_textureID);
-        glBindTexture(GL_TEXTURE_2D, m_textureID);
+        glGenTextures(1, &setup->m_textureID);
+        glBindTexture(GL_TEXTURE_2D, setup->m_textureID);
 
         // Set texture parameters
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -74,124 +78,113 @@ namespace loopxia
         // Free image data
         stbi_image_free(image);
     }
+
+    void MeshRendererImpl::p_InitInstancing(const std::shared_ptr<Mesh> mesh, MeshRenderSetup* setup, int maxInstances)
+    {
+        //setup->m_maxNumInstances = maxInstances > 0 ? maxInstances : 1;
+
+        //glGenBuffers(1, &setup->m_instanceVBO);
+        //glBindBuffer(GL_ARRAY_BUFFER, setup->m_instanceVBO);
+        //glBufferData(GL_ARRAY_BUFFER, setup->m_maxNumInstances * sizeof(glm::mat4), instanceMatrices, GL_STATIC_DRAW);
+        //
+        //std::size_t vec4Size = sizeof(glm::vec4);
+        //for (int i = 0; i < setup->m_maxNumInstances; ++i) {
+        //    glEnableVertexAttribArray(2 + i);
+        //    glVertexAttribPointer(2 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(i * vec4Size));
+        //    glVertexAttribDivisor(2 + i, 1); // Advance once per instance
+        //}
+    }
     
-    int MeshRendererImpl::AddMesh(const Mesh* mesh)
+    void MeshRendererImpl::p_RenderIndirect()
     {
-        glGenVertexArrays(1, &m_VAO);
-        glBindVertexArray(m_VAO);
 
-        //VBO data
-        //GLfloat vertexData[] =
-        //{
-        //    -0.5f, -0.5f, 0,
-        //     0.5f, -0.5f, 0,
-        //     0.5f,  0.5f, 0,
-        //    -0.5f,  0.5f, 0
-        //};
-
-        ////IBO data
-        //GLuint indexData[] = { 0, 1, 2, 3 };
-        //m_numVertices = 4;
-        //m_numIndices = 4;
-        //m_vertexBuffer.SetData(RenderBufferDataType::VERTEX_BUFFER, (void*)vertexData, 3 * 4 * sizeof(float));
-        //m_indexBuffer.SetData(RenderBufferDataType::INDEX_BUFFER, (void*)indexData, 4 * sizeof(int));
-
-        auto& vertices = mesh->Vertices();
-        m_numVertices = vertices.size();
-        m_vertexBuffer.SetData(RenderBufferDataType::kVertexBuffer, (void*)&vertices[0], 3 * m_numVertices * sizeof(float));
-
-        // Position attribute
-        unsigned int positionPos = m_meshShader.GetAttribute("aPos");
-        glVertexAttribPointer(positionPos, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0 /*offset*/);
-        glEnableVertexAttribArray(positionPos);
-
-        auto& indices = mesh->Indices();
-        m_numIndices = indices.size();
-        m_indexBuffer.SetData(RenderBufferDataType::kIndexBuffer, (void*)&indices[0], m_numIndices * sizeof(int));
-
-        auto& uvs = mesh->UV();
-        m_numUVs = uvs.size();
-        m_uvBuffer.SetData(RenderBufferDataType::kUVBuffer, (void*)&uvs[0], 2 * m_numUVs * sizeof(float));
-
-        // uv attribute
-        unsigned int uv_position = m_meshShader.GetAttribute("uv");
-        glVertexAttribPointer(uv_position, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0 /*offset*/);
-        glEnableVertexAttribArray(uv_position);
-
-        glBindVertexArray(0);
-        p_LoadTexture(mesh);
-
-        return 0;
     }
 
-    void MeshRendererImpl::RemoveMesh(int meshId)
+    MeshRenderInstance* MeshRendererImpl::AddMesh(const std::shared_ptr<Mesh> mesh)
     {
+        if (mesh->Vertices().empty()) {
+            return nullptr;
+        }
+
+        MeshRenderSetup* setup = nullptr;
+        auto it = m_meshToSetupMap.find(mesh);
+        if (it != m_meshToSetupMap.end()) {
+            // existing setup
+            setup = &it->second;
+        } else {
+            // new mesh
+            setup = &m_meshToSetupMap[mesh];
+
+            p_LoadTexture(mesh, setup);
+
+            auto& vertices = mesh->Vertices();
+            setup->m_numVertices = (uint32_t)vertices.size();
+            setup->m_baseVertex = (int)m_vertices.size();
+            m_vertices.insert(m_vertices.end(), vertices.begin(), vertices.end());
+
+            auto& indices = mesh->Indices();
+            setup->m_numIndices = (uint32_t)indices.size();
+            setup->m_baseIndex = (int)m_indices.size();
+            m_indices.insert(m_indices.end(), indices.begin(), indices.end());
+        }
+
+        auto instanceId = (int)setup->m_instances.size();
+        auto newInstance = new MeshRenderInstanceImpl(instanceId, this, mesh);
+
+        setup->m_instances.push_back(newInstance);
+
+        return newInstance;
     }
 
-    void MeshRendererImpl::Render(int meshId, Matrix4x4 wvpMatrix)
+    void MeshRendererImpl::RemoveMesh(MeshRenderInstance* meshInstance)
     {
-        m_wvp = wvpMatrix;
+        auto it = m_meshToSetupMap.find(meshInstance->GetMesh());
+        if (it == m_meshToSetupMap.end()) {
+            return;
+        }
 
+        auto& instancesVec = it->second.m_instances;
+        auto itVec = std::find(instancesVec.begin(), instancesVec.end(), meshInstance);
+        if (itVec != instancesVec.end()) {
+            // found entry and erase
+            instancesVec.erase(itVec);
+        }
+    }
 
+    void MeshRendererImpl::Render(MeshRenderInstance* instance, Matrix4x4 vpMatrix)
+    {
         auto e = glGetError();
         // bind the shader program
-        m_meshShader.Begin();
+        m_shader.BeginRender();
         e = glGetError();
 
-        static bool mSet = false;
-        // if (!mSet) {
-        auto attribute = m_meshShader.GetUniformLocation("mvp");
-        glUniformMatrix4fv(attribute, 1, GL_FALSE, glm::value_ptr(m_wvp));
-        //}
+        if (m_bUseIndirectRender) {
 
+        } else {
+            // set active texture
+            glActiveTexture(GL_TEXTURE0);
 
-        //unsigned int positionPos = m_meshShader.GetAttribute("aPos");
-        //glEnableVertexAttribArray(positionPos); 
-        ////Set vertex data
-        //m_vertexBuffer.Bind();
-        //glVertexAttribPointer(attribute, 3 /* number of components per generic vertex attribute */, GL_FLOAT, GL_FALSE, 3 * sizeof(float) /* stride, 0 to indicate tightly packed */, NULL);
+            for (auto& m : m_meshToSetupMap) {
+                m_shader.SetTextureId(m.second.m_textureID);
 
-        // bind vertex array
-        glBindVertexArray(m_VAO);
+                e = glGetError();
 
-        //unsigned int positionPos = m_meshShader.GetAttribute("aPos");
-        //glVertexAttribPointer(positionPos, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0 /*offset*/);
-        //glEnableVertexAttribArray(positionPos);
-        //// uv attribute
-        //unsigned int uv_position = m_meshShader.GetAttribute("uv");
-        //glVertexAttribPointer(uv_position, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0 /*offset*/);
-        //glEnableVertexAttribArray(uv_position);
+                auto& setup = m.second;
+                for (auto& instance : m.second.m_instances) {
+                    glDrawElementsBaseVertex(GL_TRIANGLES,
+                        setup.m_numIndices,
+                        GL_UNSIGNED_INT,
+                        (void*)(sizeof(unsigned int) * setup.m_baseIndex),
+                        setup.m_baseVertex);
+                }
 
-
-        // set active texture
-        glActiveTexture(GL_TEXTURE0);
-
-        // bind texture
-        glBindTexture(GL_TEXTURE_2D, m_textureID);
-
-        auto textureLocation = m_meshShader.GetUniformLocation("textureSampler");
-        glUniform1i(textureLocation, 0);
-
-        e = glGetError();
-        glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, NULL);
-        e = glGetError();
-
-        m_meshShader.End();
-        e = glGetError();
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-
-        glBindVertexArray(0);
-
+                e = glGetError();
+            }
+        }
+        
+        //m_wvp = vpMatrix;
+        m_shader.EndRender();
     }
-
-    void MeshRendererImpl::Render(int meshId, Matrix4x4 wvpMatrix, int animationIndex)
-    {
-    }
-
-    void MeshRendererImpl::Render(int meshId, Matrix4x4 wvpMatrix, int animationIndex1, int animationIndex2, float animationProgress)
-    {
-    }
-
 
     void MeshRendererImpl::BeginRender()
     {
@@ -200,6 +193,37 @@ namespace loopxia
 
     void MeshRendererImpl::EndRender()
     {
+    }
+
+    void MeshRendererImpl::Init()
+    {
+        if (m_bInitialized) {
+            return;
+        }
+
+        // setup SSBOs
+        // SSBO Shader Storage Buffer Object
+        // 
+        // draw commands SSBO
+        //p_InitDrawCommandsBuffer();
+        //p_UpdateDrawCommandsBuffer();
+        //
+        //// per object SSBO
+        //p_InitPerObjectBuffer();
+        //p_UpdatePerObjectBuffer();
+
+        m_bInitialized = true;
+    }
+    
+    void MeshRendererImpl::UpdateBuffer()
+    {
+        //IBO data
+        m_shader.GetIndexBuffer()->SetData(RenderBufferDataType::kIndexBuffer, (void*)m_indices.data(), m_indices.size() * sizeof(int));
+        m_shader.GetVertexBuffer()->SetData(RenderBufferDataType::kVertexBuffer, (void*)m_vertices.data(), 3 * m_vertices.size() * sizeof(float));
+
+        m_shader.GetUVBuffer()->SetData(RenderBufferDataType::kUVBuffer, (void*)m_uvs.data(), 2 * m_uvs.size() * sizeof(float));
+//        m_shader.GetNormalBuffer()->SetData(RenderBufferDataType::kNormalBuffer, (void*)m_normals.data(), 3 * 4 * sizeof(float));
+
     }
 
     MeshRenderer* CreateMeshRenderer()

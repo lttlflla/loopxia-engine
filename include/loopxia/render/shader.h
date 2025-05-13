@@ -22,6 +22,7 @@ namespace loopxia
         Shader();
         ~Shader();
 
+        void LoadFromFile(const std::string& shaderFile, ShaderType type);
         void Load(const std::string& shaderSource, ShaderType type);
         void Link();
 

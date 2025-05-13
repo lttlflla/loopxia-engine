@@ -32,12 +32,14 @@ namespace loopxia
         virtual void Rotate(Vector3 eulerAngle) = 0;
 
         /// <summary>
-        /// Rotation reference to world space
+        /// Rotation with reference to world space
         /// </summary>
         /// <param name="eulerAngle"></param>
         virtual void RotateWorldSpace(Vector3 eulerAngle) = 0;
 
         // rotate around point x
         virtual void RotateAround(Vector3 point, Vector3 axis, float angle) = 0;
+
+        virtual Matrix4x4 GetMatrix() = 0;
     };
 }

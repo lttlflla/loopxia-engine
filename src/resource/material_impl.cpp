@@ -1,7 +1,16 @@
 #include "resource/material_impl.h"
+#include "material_loader_impl.h"
 
 namespace loopxia
 {
+    const std::string kMaterialType = "Material";
+
+    MaterialImpl::MaterialImpl(const std::string& name, const std::string filePath) :
+        ResourceImpl<Material>(name, kMaterialType, filePath)
+    {
+
+    }
+
     std::string MaterialImpl::GetTextureFilePath(int index)
     {
         if (m_textureVector.size() <= index) {
@@ -20,15 +29,13 @@ namespace loopxia
         m_textureVector[index] = textureFilePath;
     }
 
-    Material* CreateMaterialFromTextureFilePath(const std::string& textureFilePath)
+    bool MaterialImpl::Load()
     {
-        auto material = new MaterialImpl();
-        material->SetTextureFilePath(0, textureFilePath);
-        return material;
-    }
+        if (m_bLoaded) {
+            return true;
+        }
 
-    Material* CreateMaterialFromMaterialFile(const std::string& materialFilePath)
-    {
-        return new MaterialImpl();
+        MaterialLoader loader;
+        return loader.LoadResource(shared_from_this());
     }
 }

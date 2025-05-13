@@ -2,6 +2,7 @@
 
 #include "loopxia/scene/scene_renderer.h"
 #include "render/mesh_renderer_impl.h"
+#include "scene/avatar_impl.h"
 
 namespace loopxia
 {
@@ -13,7 +14,7 @@ namespace loopxia
 
         void SetScene(Scene* scene) override;
         void Render(const GameTime& time) override;
-
+        void PrepareRenderers();
     private:
         // load resources to GPU
         void _PrepareRenderers();
@@ -23,5 +24,8 @@ namespace loopxia
 
         MeshRendererImpl* m_pMeshRenderer = nullptr;
         std::unordered_map<SceneNode*, std::vector<int>> m_mapOfSceneNodeToMeshId;
+
+        // map of avatar to render instance
+        std::map<Avatar*, MeshRenderInstance*> m_avatarToRenderInstanceMap;
     };
 }

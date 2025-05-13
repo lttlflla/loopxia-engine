@@ -1,12 +1,12 @@
 #pragma once
 
 #include "loopxia/game/game.h"
-#include "loopxia/graph/node.h"
+#include "loopxia/scene/scene.h"
 
 namespace loopxia
 {
     // scene renderer renders a scene
-    class SceneRenderer : public Object, public Renderer, public InstanceTracker<SceneRenderer>
+    class SceneRenderer : public Object, public InstanceTracker<SceneRenderer>
     {
     public:
         virtual ~SceneRenderer() = default;

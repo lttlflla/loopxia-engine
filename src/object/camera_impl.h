@@ -5,24 +5,9 @@
 
 namespace loopxia
 {
-    class CameraImpl : public virtual Camera, public virtual MovableObjectImpl 
+    class CameraImpl : public virtual MovableObjectImpl<Camera>
     {
     public:
-        void OnParentChange(MovableObject* oldParent, MovableObject* newParent) final
-        {
-            MovableObjectImpl::OnParentChange(oldParent, newParent);
-        }
-
-        loopxia::Transform* Transform() final
-        {
-            return MovableObjectImpl::Transform();
-        }
-
-        EventConnection EventListenParentChange(std::function<bool(MovableObject*, MovableObject*)> func) final
-        {
-            return MovableObjectImpl::EventListenParentChange(func);
-        }
-
         CameraImpl(const glm::vec3& position, float fov, float aspectRatio, float nearClip, float farClip);
         
         Vector3 GetPosition() const override;

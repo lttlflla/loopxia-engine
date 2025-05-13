@@ -1,20 +1,25 @@
+#pragma once
+
 #include "loopxia/scene/avatar.h"
 #include "resource/mesh_impl.h"
+#include "scene_node_impl.h"
 
 namespace loopxia
 {
-    class AvatarImpl : public Avatar
+    class AvatarImpl final : public virtual SceneNodeImpl<Avatar>
     {
     public:
-        AvatarImpl();
+        AvatarImpl(SceneNode* parent = nullptr);
 
-        void SetMesh(RefCountedObject<Mesh> mesh) override;
-        RefCountedObject<Mesh> GetMesh() override;
+        void SetMesh(std::shared_ptr<Mesh> mesh) override;
+        std::shared_ptr<Mesh> GetMesh() override;
+
+        void SetAnimation() override;
 
     private:
         // reference to the mesh resource
         // multiple avatar can reference to the same mesh
-        std::shared_ptr<MeshImpl> m_mesh;
+        std::shared_ptr<Mesh> m_mesh;
 
         // reference to 
     };

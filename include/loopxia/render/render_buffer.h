@@ -1,6 +1,7 @@
 #pragma once
 
 #include "loopxia/math.h"
+#include <GL/glew.h>
 
 namespace loopxia
 {
@@ -15,13 +16,14 @@ namespace loopxia
         kVertexBuffer,
         kIndexBuffer,
         kUVBuffer,
+        kNormalBuffer
     };
 
     class RenderBuffer
     {
         friend class ShaderImpl;
     public:
-        RenderBuffer();
+        RenderBuffer(GLuint bufferId, RenderBufferDataType dataType);
         ~RenderBuffer();
 
         void SetData(RenderBufferDataType dataType, void* data, size_t dataSize);

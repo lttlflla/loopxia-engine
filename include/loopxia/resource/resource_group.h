@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include "loopxia/resource/resource.h"
 
 namespace loopxia
 {
@@ -12,11 +13,13 @@ namespace loopxia
     class ResourceGroup
     {
     public:
-        virtual bool LoadAllResources() = 0;
-        virtual bool LoadResource(std::shared_ptr<Resource> resource) = 0;
-        virtual bool LoadResourceAsync(std::shared_ptr<Resource> resource) = 0;
+        virtual ~ResourceGroup() = default;
 
+        virtual bool LoadAllResources() = 0;
         // unload all resource
         virtual void UnloadAllResource() = 0;
+        
+        virtual void AddResource(std::shared_ptr<Resource> resource) = 0;
+        virtual bool RemoveResource(std::shared_ptr<Resource> resource) = 0;
     };
 }

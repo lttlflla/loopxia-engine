@@ -8,12 +8,15 @@
 
 namespace loopxia
 {
+    const static std::string kDefaultResourceGroupName = "LOOPXIA_DEFAULT_RESOURCE_GROUP";
+
     class ResourceManager {
     public:
         virtual ~ResourceManager() = default;
 
-        virtual std::shared_ptr<Mesh> CreateMesh(const std::string& path, ResourceGroup* grp = nullptr) = 0;
-        virtual std::shared_ptr<Texture> CreateTexture(const std::string& path, ResourceGroup* grp = nullptr) = 0;
+        virtual std::shared_ptr<Mesh> CreateMesh(const std::string& path, const std::string& name, ResourceGroup* grp = nullptr) = 0;
+        virtual std::shared_ptr<Texture> CreateTexture(const std::string& path, const std::string& name, ResourceGroup* grp = nullptr) = 0;
+        virtual std::shared_ptr<Material> CreateMaterial(const std::string& path, const std::string& name, ResourceGroup* grp = nullptr) = 0;
 
         // for loading generic custom resource
         virtual std::shared_ptr<Resource> CreateResource(const std::string& path, ResourceLoader* loader, ResourceGroup* grp = nullptr) = 0;
@@ -31,5 +34,7 @@ namespace loopxia
         virtual std::vector<ResourceGroup*> GetAllResourceGroups() = 0;
     };
 
+    ResourceManager* CreateResourceManager();
+    void DestroyResourceManager(ResourceManager* mgr);
 }
 

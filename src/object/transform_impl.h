@@ -7,6 +7,7 @@ namespace loopxia
 {
     class TransformImpl final : public Transform
     {
+        template <typename T>
         friend class MovableObjectImpl;
 
     public:
@@ -37,6 +38,8 @@ namespace loopxia
 
         // rotate around point x
         inline void RotateAround(Vector3 point, Vector3 axis, float angle) override;
+
+        inline Matrix4x4 GetMatrix() override;
 
     private:
         inline void _RecomputeTransform();

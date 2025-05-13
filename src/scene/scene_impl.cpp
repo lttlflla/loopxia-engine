@@ -3,8 +3,10 @@
 
 namespace loopxia
 {
-    SceneImpl::SceneImpl() : m_root(new SceneNodeImpl(nullptr))
+    SceneImpl::SceneImpl() : m_root(new SceneNodeImpl<SceneNode>(nullptr))
+        , m_sceneRenderer(new SceneRendererImpl())
     {
+        m_sceneRenderer->SetScene(this);
     }
 
     SceneNode* SceneImpl::SceneRoot()
@@ -12,9 +14,19 @@ namespace loopxia
         return m_root.get();
     }
 
-    void SceneImpl::Render()
+    void SceneImpl::SetActiveCamera(Camera* camera)
     {
+        m_pCamera = camera;
+    }
 
+    Camera* SceneImpl::GetActiveCamera()
+    {
+        return m_pCamera;
+    }
+
+    void SceneImpl::Render(const GameTime& gameTime)
+    {
+        m_sceneRenderer->Render(gameTime);
     }
 
     Scene* CreateScene()

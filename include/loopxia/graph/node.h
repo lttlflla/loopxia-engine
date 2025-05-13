@@ -23,17 +23,17 @@ namespace loopxia
             return m_parent;
         }
 
-        void SetParent(T* parent)
+        virtual void SetParent(T* parent)
         {
             if (m_parent) {
-                m_parent->RemoveChild(this);
+                m_parent->RemoveChild(Downcast());
             }
 
-            auto oldParent = m_parent;
             m_parent = parent;
-            m_parent->AddChild(this);
 
-            T::OnParentChange(oldParent, parent);
+            if (parent) {
+                m_parent->AddChild(Downcast());
+            }
         }
 
         std::unordered_set<T*> Children()
@@ -61,13 +61,18 @@ namespace loopxia
                 if (auto cc = dynamic_cast<C*>(c)) {
                     childrensOfType.push_back(cc);
                 }
-                auto descentants = c->AllDescendantByType();
-                childrensOfType.insert(descentants.begin(), descentants.end());
+                auto descendants = c->AllDescendantByType<C>();
+                childrensOfType.insert(childrensOfType.end(), descendants.begin(), descendants.end());
             }
             return childrensOfType;
         }
 
     protected:
+        T* Downcast()
+        {
+            return static_cast<T*>(this);
+        }
+
         void AddChild(T* obj)
         {
             m_children.insert(obj);

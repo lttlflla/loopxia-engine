@@ -106,16 +106,24 @@ add_library (loopxia-engine
 "src/resource/material_impl.cpp" 
 "src/resource/mesh_impl.cpp" 
 "src/resource/bone_impl.cpp" 
+"src/resource/resource_impl.cpp"
+"src/resource/resource_group_impl.cpp"
+"src/resource/resource_manager_impl.cpp"
+"src/resource/mesh_loader_impl.cpp"
+"src/resource/material_loader_impl.cpp"
 
 "src/scene/scene_impl.cpp" 
 "src/scene/scene_node_impl.cpp" 
 "src/scene/scriptable_object.cpp"
 "src/scene/scene_renderer_impl.cpp"
+"src/scene/avatar_impl.cpp"
 
 "src/game/game.cpp" 
 "src/game/camera_controller_impl.cpp"
-
- "src/scene/avatar_impl.h" "src/scene/avatar_impl.cpp"     "include/loopxia/resource/resource_manager.h" "include/loopxia/resource/texture.h" "include/loopxia/resource/resource.h" "include/loopxia/resource/resource_group.h" "include/loopxia/resource/resource_loader.h" "src/resource/resource_manager_impl.h")
+"src/render/mesh_renderer_indirect.h" 
+"src/render/mesh_renderer_indirect.cpp"
+"src/render/mesh_renderer_shader.cpp"
+)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET loopxia-engine PROPERTY CXX_STANDARD 20)
@@ -175,3 +183,17 @@ foreach(target ${targets})
     get_target_property(INCLUDE_DIRS ${target} INCLUDE_DIRECTORIES)
     message(STATUS "Include directories for target ${target}: ${INCLUDE_DIRS}")
 endforeach()
+
+set(SOURCE_ENGINE_ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets CACHE INTERNAL "Path to engine asset directory for internal use")
+
+function(copy_engine_assets_dev target output_dir)
+    set(DEST_ASSETS_DIR ${output_dir}/assets)
+
+    add_custom_command(
+        TARGET ${target} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Copying assets from: ${SOURCE_ENGINE_ASSETS_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E echo "Copying assets to:   ${DEST_ASSETS_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different  ${SOURCE_ENGINE_ASSETS_DIR} ${DEST_ASSETS_DIR}
+        COMMENT "Copying assets from ${SOURCE_ENGINE_ASSETS_DIR} to ${DEST_ASSETS_DIR}"
+    )
+endfunction()

@@ -1,16 +1,16 @@
 #include "scene/scene_node_impl.h"
+#include "scene/avatar_impl.h"
 
 namespace loopxia
 {
-    SceneNodeImpl::SceneNodeImpl(SceneNodeImpl* parent) : m_parent(parent)
+    template<class T>
+    SceneNodeImpl<T>::SceneNodeImpl(SceneNode* parent) : MovableObjectImpl<T>(parent)
     {
-        if (m_parent) {
-            m_parent->AddChild(this);
-        }
+        static_assert(std::is_base_of<SceneNode, T>::value, "T must be derived from SceneNode");
     }
 
-
-    void SceneNodeImpl::AttachObject(Object* obj)
+    template<class T>
+    void SceneNodeImpl<T>::AttachObject(Object* obj)
     {
         auto it = std::find(m_objects.begin(), m_objects.end(), obj);
         if (it != m_objects.end()) {
@@ -21,7 +21,8 @@ namespace loopxia
         m_objects.push_back(obj);
     }
 
-    void SceneNodeImpl::DetachObject(Object* obj)
+    template<class T>
+    void SceneNodeImpl<T>::DetachObject(Object* obj)
     {
         auto it = std::find(m_objects.begin(), m_objects.end(), obj);
         if (it == m_objects.end()) {
@@ -32,13 +33,17 @@ namespace loopxia
         m_objects.erase(it);
     }
 
-    std::vector<Object*> SceneNodeImpl::GetAttachedObjects()
+    template<class T>
+    std::vector<Object*> SceneNodeImpl<T>::GetAttachedObjects()
     {
         return m_objects;
     }
 
     SceneNode* CreateSceneNode(SceneNode* parent)
     {
-        return new SceneNodeImpl(dynamic_cast<SceneNodeImpl*>(parent));
+        return new SceneNodeImpl<SceneNode>(dynamic_cast<SceneNodeImpl<SceneNode>*>(parent));
     }
+
+    template class SceneNodeImpl<SceneNode>;
+    template class SceneNodeImpl<Avatar>;
 }

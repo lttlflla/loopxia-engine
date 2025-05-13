@@ -111,4 +111,18 @@ namespace loopxia
             static_cast<TransformImpl*>(child->Transform())->_RecomputeTransform();
         }
     }
+
+    Matrix4x4 TransformImpl::GetMatrix()
+    {
+        // Create rotation matrix from quaternion
+        glm::mat4 rotationMatrix = glm::mat4_cast(m_rotation);
+
+        // Create translation matrix
+        glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), m_position);
+
+        // Combine translation and rotation
+        glm::mat4 modelMatrix = translationMatrix * rotationMatrix;
+
+        return modelMatrix;
+    }
 }

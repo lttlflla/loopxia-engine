@@ -6,15 +6,20 @@
 
 namespace loopxia
 {
-    class MovableObjectImpl : public virtual MovableObject
+    template <class T>
+    class MovableObjectImpl :  public virtual T
     {
     public:
-        MovableObjectImpl();
+        MovableObjectImpl(MovableObject* parent = nullptr);
         ~MovableObjectImpl() = default;
 
-        void OnParentChange(MovableObject*, MovableObject*) override;
-        loopxia::Transform* Transform() override;
-        EventConnection EventListenParentChange(std::function<bool(MovableObject*, MovableObject*)> func) override;
+        loopxia::Transform* Transform() override final;
+        EventConnection EventListenParentChange(std::function<bool(MovableObject*, MovableObject*)> func) override final;
+
+        virtual void SetParent(MovableObject* parent) final;
+
+    protected:
+        void OnParentChange(MovableObject* oldParent, MovableObject* newParent) override;
 
     private:
         EventSignal<MovableObject* /*old parent*/, MovableObject* /* new parent*/> m_parentChangeEvent;

@@ -5,9 +5,9 @@
 
 namespace loopxia
 {
-    class ResourceLoader
+    class ResourceSaver
     {
     public:
-        virtual bool LoadResource(std::shared_ptr<Resource> resource) = 0;
+        virtual void SaveResource(std::shared_ptr<Resource> resource) = 0;
     };
 }
