@@ -100,7 +100,7 @@ namespace loopxia
                 targetBone.SetName(assimpBone->mName.C_Str());
                 Matrix4x4 m44;
                 for (int mIndex = 0; mIndex < 16; mIndex++) {
-                    m44[mIndex / 4][mIndex % 4] = *assimpBone->mOffsetMatrix[mIndex];
+                    m44[mIndex / 4][mIndex % 4] = assimpBone->mOffsetMatrix[mIndex / 4][mIndex % 4];
                 }
                 
                 targetBone.SetOffsetMatrix(m44);

@@ -40,6 +40,8 @@ namespace loopxia
 
         virtual void Show() override;
         virtual void Hide() override;
+        virtual void DetachContext();
+        virtual void MakeCurrentContext();
 
         void Swap();
 

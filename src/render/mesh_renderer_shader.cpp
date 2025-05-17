@@ -8,14 +8,21 @@ namespace loopxia
         m_meshShader.LoadFromFile(shaderFileVS, Shader::ShaderType::kVertex);
         m_meshShader.LoadFromFile(shaderFileFS, Shader::ShaderType::kFragment);
         m_meshShader.Link();
-
-        SetupShaderBuffers();
+        
+        BeginRender();
+        SetupShaderBuffers(); 
+        EndRender();
     }
 
     void MeshRendererShader::BeginRender()
     {
         glBindVertexArray(m_VAO);
         m_meshShader.Begin();
+
+        if (m_indexBuffer) {
+            // bind index buffer
+            m_indexBuffer->Bind();
+        }
     }
 
     void MeshRendererShader::EndRender()
@@ -63,13 +70,13 @@ namespace loopxia
         glVertexAttribPointer(uv_position, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0 /*offset*/);
         glEnableVertexAttribArray(uv_position);
 
-        m_normalBuffer.reset(new RenderBuffer(m_attributeBuffers[3], RenderBufferDataType::kNormalBuffer));
-        m_normalBuffer->Bind();
+        //m_normalBuffer.reset(new RenderBuffer(m_attributeBuffers[3], RenderBufferDataType::kNormalBuffer));
+        //m_normalBuffer->Bind();
 
         // tell opengl that this normal buffer maps to "normal" attribute
-        unsigned int normal_position = m_meshShader.GetAttribute("normal");
-        glVertexAttribPointer(normal_position, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0 /*offset*/);
-        glEnableVertexAttribArray(normal_position);
+        // int normal_position = m_meshShader.GetAttribute("normal");
+       // glVertexAttribPointer(normal_position, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0 /*offset*/);
+       // glEnableVertexAttribArray(normal_position);
 
         //GLfloat vertexData[] =
         //{

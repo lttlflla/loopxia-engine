@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <SDL_events.h>
+#include <format>
 #include "loopxia/log.h"
 
 namespace loopxia
@@ -40,7 +41,22 @@ namespace loopxia
                     LogError(std::string("Failed to create window ") + SDL_GetError());
                 }
 
-                m_glContext = SDL_GL_CreateContext(m_pWindow);
+                if (SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1) < 0) {
+                    LogError(std::format("Warning: Unable to set double buffering: {}", SDL_GetError()));
+                }
+
+                m_glContext = SDL_GL_CreateContext(m_pWindow); 
+                
+                if (SDL_GL_SetSwapInterval(1) < 0) {
+                    // must be called after the OpenGL context is created.
+                    LogError(std::format("Warning: Unable to set VSync: {}", SDL_GetError()));
+                }
+                
+                std::string rendererStr = (char*)glGetString(GL_RENDERER);
+                std::string vendorStr = (char*)glGetString(GL_VENDOR);
+                std::string versionStr = (char*)glGetString(GL_VERSION);
+
+                LogInfo(std::format("Renderer: {} Vendor: {} Version: {}", rendererStr, vendorStr, versionStr));
             }
 
             ~WindowImpl()
@@ -66,6 +82,17 @@ namespace loopxia
             void Swap()
             {
                 SDL_GL_SwapWindow(m_pWindow);
+            }
+
+            void MakeCurrentContext()
+            {
+                SDL_GL_MakeCurrent(m_pWindow, m_glContext);
+            }
+
+            void DetachContext()
+            {
+                // detach opengl from current thread
+                SDL_GL_MakeCurrent(m_pWindow, NULL);
             }
 
         protected:
@@ -102,6 +129,16 @@ namespace loopxia
     void Window::Swap()
     {
         m_impl->Swap();
+    }
+
+    void Window::DetachContext()
+    {
+        m_impl->DetachContext();
+    }
+
+    void Window::MakeCurrentContext()
+    {
+        m_impl->MakeCurrentContext();
     }
 
     Window* CreateUIWindow(const std::string& title)

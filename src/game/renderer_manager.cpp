@@ -13,7 +13,7 @@ namespace loopxia
         public:
             RendererImpl(SDL_Window* window)
             {
-                m_renderer = SDL_CreateRenderer(window, nullptr, SDL_RENDERER_ACCELERATED);
+                m_renderer = SDL_CreateRenderer(window, nullptr, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
             }
 
             ~RendererImpl()

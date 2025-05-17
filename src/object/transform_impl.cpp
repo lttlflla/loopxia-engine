@@ -3,6 +3,10 @@
 namespace loopxia
 {
     TransformImpl::TransformImpl(MovableObject* obj) : m_obj(obj)
+        , m_position(0)
+        , m_rotation(1.0, 0, 0, 0)
+        , m_localPosition(0)
+        , m_localRotation(1.0, 0, 0, 0)
     {
     }
 

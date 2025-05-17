@@ -41,6 +41,8 @@ namespace loopxia
 
             auto  closeWindowFunc = [this](Event& evt, WindowDetails& details) -> bool {
                 m_bCloseWindow = true;
+                m_renderThread->join();
+                m_renderThread.reset();
                 return true;
             };
 
@@ -49,15 +51,21 @@ namespace loopxia
 
         void Run() override
         {
+            m_pWindow->DetachContext();
+            if (!m_renderThread) {
+                m_renderThread.reset(new std::thread([this] {
+
+#ifdef WIN32
+                    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
+#endif
+                    _renderLoop();
+                    }));
+            }
+
             while (!m_bCloseWindow) {
                 while (_PollEvent()) {
                 }
-
-                _render();
-
-                if (m_pWindow) {
-                    m_pWindow->Swap();
-                }
+                SDL_Delay(10);
             }
         }
 
@@ -68,7 +76,7 @@ namespace loopxia
 
         void SetScene(Scene* pNextScene, SceneTransition* sceneTransition) override
         {
-
+            m_scene = pNextScene;
         }
 
         void SetKeyboardShortcut(std::vector<KeyCode> keys) override
@@ -83,7 +91,7 @@ namespace loopxia
 
             // convert sdl event to loopxia event
             SDL_Event sdlEvt;
-            SDL_PollEvent(&sdlEvt);
+            bool ret = SDL_PollEvent(&sdlEvt);
             switch (sdlEvt.type) {
             case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
             {
@@ -122,35 +130,65 @@ namespace loopxia
             }
             }
 
-            return false;
+            return ret;
         }
 
-        void _Update()
+        void _Update(GameTime& gameTime)
         {
-            auto timeNow = std::chrono::steady_clock::now();
-            auto elapsed = timeNow - m_lastUpdateTime;
-            m_lastUpdateTime = timeNow;
-
-            GameTime time(elapsed, timeNow);
-
-            GameUpdate.Signal(time);
+            GameUpdate.Signal(gameTime);
         }
 
-        void _render()
+        void _renderLoop()
         {
-            //Clear color buffer
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            
-            _Update();
+            m_pWindow->MakeCurrentContext();
 
-            if (!m_scene) {
-                return;
+            while (!m_bCloseWindow) {
+                auto timeNow = std::chrono::steady_clock::now();
+
+                if (m_lastUpdateTime == std::chrono::steady_clock::time_point()) {
+                    // "time_point is uninitialized (epoch)"
+                    m_lastUpdateTime = timeNow;
+                }
+
+                auto elapsed = timeNow - m_lastUpdateTime;
+
+                GameTime time(elapsed, timeNow);
+                if (time.ElapsedTimeMilliseconds() > (1000 / 60)) {
+                    m_lastUpdateTime = timeNow;
+                    _Update(time);
+                }
+
+                if (m_lastRenderTime == std::chrono::steady_clock::time_point()) {
+                    // "time_point is uninitialized (epoch)"
+                    m_lastRenderTime = timeNow;
+                }
+
+                auto elapsedRenderTime = timeNow - m_lastRenderTime;
+                GameTime elapsedRenderGameTime(elapsedRenderTime, timeNow);
+                if (elapsedRenderGameTime.ElapsedTimeMilliseconds() >= (1000 / 70)) {
+
+                    //Clear color buffer
+                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+                    if (!m_scene) {
+                        return;
+                    }
+
+                    auto root = m_scene->SceneRoot();
+
+                    // cull visible
+                    // render visible
+                    m_scene->Render(time);
+                    if (m_pWindow) {
+                        m_pWindow->Swap();
+                    }
+                } else {
+                    int waitTime = (1000 / 70) - elapsedRenderGameTime.ElapsedTimeMilliseconds();
+                    SDL_Delay(waitTime);
+                }
+
+                
             }
-
-            auto root = m_scene->SceneRoot();
-
-            // cull visible
-            // render visible
         }
 
         void _resize(int width, int height)
@@ -168,9 +206,13 @@ namespace loopxia
         }
 
     private:
+        // dedicated thread for rendering
+        std::unique_ptr<std::thread> m_renderThread;
+
         bool m_bCloseWindow = false;
         Window* m_pWindow = nullptr;
         std::chrono::time_point<std::chrono::steady_clock> m_lastUpdateTime;
+        std::chrono::time_point<std::chrono::steady_clock> m_lastRenderTime;
             
         Scene* m_scene = nullptr;
 

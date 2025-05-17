@@ -8,7 +8,7 @@
 
 namespace loopxia
 {
-    const int kNumOfBuffers = 4;
+    const int kNumOfBuffers = 3;
     class MeshRendererShader
     {
     public:

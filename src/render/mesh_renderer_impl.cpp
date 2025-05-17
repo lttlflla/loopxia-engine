@@ -117,15 +117,19 @@ namespace loopxia
 
             p_LoadTexture(mesh, setup);
 
+            auto& indices = mesh->Indices();
+            setup->m_numIndices = (uint32_t)indices.size();
+            setup->m_baseIndex = (int)m_indices.size();
+            m_indices.insert(m_indices.end(), indices.begin(), indices.end());
+
             auto& vertices = mesh->Vertices();
             setup->m_numVertices = (uint32_t)vertices.size();
             setup->m_baseVertex = (int)m_vertices.size();
             m_vertices.insert(m_vertices.end(), vertices.begin(), vertices.end());
 
-            auto& indices = mesh->Indices();
-            setup->m_numIndices = (uint32_t)indices.size();
-            setup->m_baseIndex = (int)m_indices.size();
-            m_indices.insert(m_indices.end(), indices.begin(), indices.end());
+            auto& uvs = mesh->UV();
+            m_uvs.insert(m_uvs.end(), uvs.begin(), uvs.end());
+
         }
 
         auto instanceId = (int)setup->m_instances.size();
@@ -157,6 +161,9 @@ namespace loopxia
         // bind the shader program
         m_shader.BeginRender();
         e = glGetError();
+
+       // auto mvp = vpMatrix * instance->GetWorldMatrix();
+        m_shader.SetWVP(vpMatrix);
 
         if (m_bUseIndirectRender) {
 
@@ -218,10 +225,12 @@ namespace loopxia
     void MeshRendererImpl::UpdateBuffer()
     {
         //IBO data
+        m_shader.BeginRender();
         m_shader.GetIndexBuffer()->SetData(RenderBufferDataType::kIndexBuffer, (void*)m_indices.data(), m_indices.size() * sizeof(int));
         m_shader.GetVertexBuffer()->SetData(RenderBufferDataType::kVertexBuffer, (void*)m_vertices.data(), 3 * m_vertices.size() * sizeof(float));
 
         m_shader.GetUVBuffer()->SetData(RenderBufferDataType::kUVBuffer, (void*)m_uvs.data(), 2 * m_uvs.size() * sizeof(float));
+        m_shader.EndRender();
 //        m_shader.GetNormalBuffer()->SetData(RenderBufferDataType::kNormalBuffer, (void*)m_normals.data(), 3 * 4 * sizeof(float));
 
     }
