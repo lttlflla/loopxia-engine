@@ -13,6 +13,7 @@
 #define SSBO_INDEX_DIFFUSE_MAPS    3
 #define SSBO_INDEX_NORMAL_MAPS     4
 
+#include <chrono>
 namespace loopxia
 {
     MeshRenderInstanceImpl::MeshRenderInstanceImpl(int instanceId, MeshRendererImpl* pRenderer, std::shared_ptr<Mesh> pMesh) :
@@ -130,6 +131,8 @@ namespace loopxia
             auto& uvs = mesh->UV();
             m_uvs.insert(m_uvs.end(), uvs.begin(), uvs.end());
 
+            // bone data
+
         }
 
         auto instanceId = (int)setup->m_instances.size();
@@ -157,10 +160,8 @@ namespace loopxia
 
     void MeshRendererImpl::Render(MeshRenderInstance* instance, Matrix4x4 vpMatrix)
     {
-        auto e = glGetError();
         // bind the shader program
         m_shader.BeginRender();
-        e = glGetError();
 
        // auto mvp = vpMatrix * instance->GetWorldMatrix();
         m_shader.SetWVP(vpMatrix);
@@ -169,14 +170,14 @@ namespace loopxia
 
         } else {
             // set active texture
-            glActiveTexture(GL_TEXTURE0);
+            //glActiveTexture(GL_TEXTURE0);
 
             for (auto& m : m_meshToSetupMap) {
+                auto start = std::chrono::high_resolution_clock::now();
                 m_shader.SetTextureId(m.second.m_textureID);
 
-                e = glGetError();
-
                 auto& setup = m.second;
+
                 for (auto& instance : m.second.m_instances) {
                     glDrawElementsBaseVertex(GL_TRIANGLES,
                         setup.m_numIndices,
@@ -184,11 +185,19 @@ namespace loopxia
                         (void*)(sizeof(unsigned int) * setup.m_baseIndex),
                         setup.m_baseVertex);
                 }
-
-                e = glGetError();
+                auto end = std::chrono::high_resolution_clock::now();
+                // Compute duration in milliseconds
+                std::chrono::duration<double, std::milli> duration = end - start;
+                if (duration.count() > 100) {
+                    int a = 0;
+                    int b = a;
+                }
+                //LogInfo(std::format("render {}", duration.count()));
             }
         }
-        
+
+
+
         //m_wvp = vpMatrix;
         m_shader.EndRender();
     }
@@ -226,12 +235,14 @@ namespace loopxia
     {
         //IBO data
         m_shader.BeginRender();
-        m_shader.GetIndexBuffer()->SetData(RenderBufferDataType::kIndexBuffer, (void*)m_indices.data(), m_indices.size() * sizeof(int));
-        m_shader.GetVertexBuffer()->SetData(RenderBufferDataType::kVertexBuffer, (void*)m_vertices.data(), 3 * m_vertices.size() * sizeof(float));
+        m_shader.GetIndexBuffer()->SetData((void*)m_indices.data(), m_indices.size() * sizeof(int));
+        m_shader.GetVertexBuffer()->SetData((void*)m_vertices.data(), 3 * m_vertices.size() * sizeof(float));
 
-        m_shader.GetUVBuffer()->SetData(RenderBufferDataType::kUVBuffer, (void*)m_uvs.data(), 2 * m_uvs.size() * sizeof(float));
+        m_shader.GetUVBuffer()->SetData((void*)m_uvs.data(), 2 * m_uvs.size() * sizeof(float));
+        m_shader.GetNormalBuffer()->SetData((void*)m_normals.data(), 3 * m_normals.size() * sizeof(float));
+
         m_shader.EndRender();
-//        m_shader.GetNormalBuffer()->SetData(RenderBufferDataType::kNormalBuffer, (void*)m_normals.data(), 3 * 4 * sizeof(float));
+        
 
     }
 

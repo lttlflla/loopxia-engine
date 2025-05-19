@@ -70,7 +70,8 @@ namespace loopxia
         std::vector<Vector3> m_vertices;
         std::vector<Vector3> m_normals;
         std::vector<Vector2> m_uvs;
-
+        
+        std::vector<VertexBoneData> m_boneData;
 
         //GLuint m_colorsBuffer = 0;
         //GLuint m_diffuseMapBuffer = 0;

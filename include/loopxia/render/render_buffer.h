@@ -16,7 +16,9 @@ namespace loopxia
         kVertexBuffer,
         kIndexBuffer,
         kUVBuffer,
-        kNormalBuffer
+        kNormalBuffer,
+        kBoneIdBuffer,
+        kBoneWeightBuffer
     };
 
     class RenderBuffer
@@ -26,7 +28,7 @@ namespace loopxia
         RenderBuffer(GLuint bufferId, RenderBufferDataType dataType);
         ~RenderBuffer();
 
-        void SetData(RenderBufferDataType dataType, void* data, size_t dataSize);
+        void SetData(void* data, size_t dataSize);
         void Bind();
 
     protected:

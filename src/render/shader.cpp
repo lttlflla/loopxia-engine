@@ -97,12 +97,15 @@ namespace loopxia
 
             void Begin()
             {
-                glUseProgram(m_programID);
+                if (m_currentProgramID != m_programID) {
+                    glUseProgram(m_programID);
+                    m_currentProgramID = m_programID;
+                }
             }
 
             void End()
             {
-                glUseProgram(NULL);
+                //glUseProgram(NULL);
             }
 
             void Load(const std::string& source, Shader::ShaderType type)
@@ -175,7 +178,11 @@ namespace loopxia
             GLuint m_programID = 0;
             GLuint m_fragmentShader = 0;
             GLuint m_vertexShader = 0;
+
+            static GLuint m_currentProgramID;
         };
+        
+        GLuint ShaderImpl::m_currentProgramID = -1;
     }
 
     Shader::Shader()

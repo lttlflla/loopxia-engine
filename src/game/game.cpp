@@ -4,6 +4,8 @@
 #include <SDL.h>
 #include <GL/glew.h>
 #include <gl/GL.h>
+#include <thread>
+#include "loopxia/loopxia.h"
 //#include <GL/glew.h>
 
 using namespace loopxia;
@@ -25,13 +27,16 @@ namespace loopxia
         {
             m_pWindow = CreateUIWindow("Loopxia Game Engine");
 
-
             GLenum glewError = glewInit();
             if (glewError != GLEW_OK)
             {
                 LogError(std::format("Error initializing GLEW! {}\n", (char*)glewGetErrorString(glewError)));
             }
 
+            glEnable(GL_DEBUG_OUTPUT);
+            glDebugMessageCallback([](GLenum, GLenum, GLuint, GLenum severity, GLsizei, const GLchar* message, const void*) {
+                LogError( std::format("OpenGL: {}", (std::string)message));
+                }, nullptr);
             auto  resizeFunc = [this](Event& evt, WindowDetails& details, int w, int h) -> bool {
                 _resize(w, h);
                 return true;
@@ -143,7 +148,9 @@ namespace loopxia
             m_pWindow->MakeCurrentContext();
 
             while (!m_bCloseWindow) {
-                auto timeNow = std::chrono::steady_clock::now();
+                auto timeNow = std::chrono::high_resolution_clock::now();
+                int doubleBuffer;
+                SDL_GL_GetAttribute(SDL_GL_DOUBLEBUFFER, &doubleBuffer);
 
                 if (m_lastUpdateTime == std::chrono::steady_clock::time_point()) {
                     // "time_point is uninitialized (epoch)"
@@ -165,13 +172,15 @@ namespace loopxia
 
                 auto elapsedRenderTime = timeNow - m_lastRenderTime;
                 GameTime elapsedRenderGameTime(elapsedRenderTime, timeNow);
-                if (elapsedRenderGameTime.ElapsedTimeMilliseconds() >= (1000 / 70)) {
+                if (elapsedRenderGameTime.ElapsedTimeMilliseconds() >= (1000 / 90)) {
 
                     //Clear color buffer
+                    glClearColor(0, 0, 0, 1);
                     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
                     if (!m_scene) {
-                        return;
+                        std::this_thread::sleep_for(std::chrono::milliseconds(33));
+                        continue;
                     }
 
                     auto root = m_scene->SceneRoot();
@@ -179,12 +188,28 @@ namespace loopxia
                     // cull visible
                     // render visible
                     m_scene->Render(time);
+
+
+                    //auto start = std::chrono::high_resolution_clock::now();
                     if (m_pWindow) {
                         m_pWindow->Swap();
                     }
+                    
+                    m_lastRenderTime = std::chrono::high_resolution_clock::now();
+
+                    //auto end = std::chrono::high_resolution_clock::now();
+                    // Compute duration in milliseconds
+                    /*std::chrono::duration<double, std::milli> duration = end - start;
+                    
+                    if (duration.count() > 100 || elapsedRenderGameTime.ElapsedTimeMilliseconds() > 100) {
+                        int a = 0;
+                        int b = a;
+                    }
+                    LogInfo(std::format("time lapsed {} swap took: {}", elapsedRenderGameTime.ElapsedTimeMilliseconds(), duration.count()));*/
                 } else {
-                    int waitTime = (1000 / 70) - elapsedRenderGameTime.ElapsedTimeMilliseconds();
-                    SDL_Delay(waitTime);
+                    int waitTime = (1000 / 90) - elapsedRenderGameTime.ElapsedTimeMilliseconds();
+                    std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
+                    //LogInfo(std::format("sleep_for {}", waitTime));
                 }
 
                 

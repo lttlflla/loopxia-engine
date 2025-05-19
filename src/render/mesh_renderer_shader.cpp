@@ -1,5 +1,6 @@
 #include "mesh_renderer_shader.h"
 #include <glm/gtc/type_ptr.hpp>
+#include "mesh_render_setup.h"
 
 namespace loopxia
 {
@@ -8,17 +9,18 @@ namespace loopxia
         m_meshShader.LoadFromFile(shaderFileVS, Shader::ShaderType::kVertex);
         m_meshShader.LoadFromFile(shaderFileFS, Shader::ShaderType::kFragment);
         m_meshShader.Link();
-        
-        BeginRender();
+
+        m_meshShader.Begin();
         SetupShaderBuffers(); 
-        EndRender();
+        m_meshShader.End();
     }
 
     void MeshRendererShader::BeginRender()
     {
-        glBindVertexArray(m_VAO);
+        static bool bCalled = false;
         m_meshShader.Begin();
 
+        glBindVertexArray(m_VAO);
         if (m_indexBuffer) {
             // bind index buffer
             m_indexBuffer->Bind();
@@ -33,16 +35,22 @@ namespace loopxia
 
     void MeshRendererShader::SetTextureId(GLuint textureId)
     {
-        auto textureLocation = m_meshShader.GetUniformLocation("textureSampler");
+        if (m_textureAttribute == -1) {
+            m_textureAttribute = m_meshShader.GetUniformLocation("textureSampler");
+        }
+        
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureId);
-        glUniform1i(textureLocation, 0);
+        glUniform1i(m_textureAttribute, 0);
     }
 
     void MeshRendererShader::SetWVP(Matrix4x4 matrix)
     {
-        auto attribute = m_meshShader.GetUniformLocation("mvp");
-        glUniformMatrix4fv(attribute, 1, GL_FALSE /*whether transposed*/, glm::value_ptr(matrix));
+        if (m_wvpAttribute == -1) {
+            m_wvpAttribute = m_meshShader.GetUniformLocation("gWvp");
+        }
+
+        glUniformMatrix4fv(m_wvpAttribute, 1, GL_FALSE /*whether transposed*/, glm::value_ptr(matrix));
     }
 
     void MeshRendererShader::SetupShaderBuffers()
@@ -51,57 +59,47 @@ namespace loopxia
         glBindVertexArray(m_VAO);
 
         //VBO data
+        // generate vbo buffers
         glGenBuffers(kNumOfBuffers, m_attributeBuffers);
+
         m_indexBuffer.reset(new RenderBuffer(m_attributeBuffers[0], RenderBufferDataType::kIndexBuffer));
 
         m_vertexBuffer.reset(new RenderBuffer(m_attributeBuffers[1], RenderBufferDataType::kVertexBuffer));
         m_vertexBuffer->Bind();
 
-        // tell opengl that this vertex buffer maps to "aPos" attribute
-        unsigned int positionPos = m_meshShader.GetAttribute("aPos");
-        glVertexAttribPointer(positionPos, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0 /*offset*/);
-        glEnableVertexAttribArray(positionPos);
+        // tell opengl that this vertex buffer maps to "pos" attribute
+        m_posAttribute = m_meshShader.GetAttribute("pos");
+        glVertexAttribPointer(m_posAttribute, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0 /*offset*/);
+        glEnableVertexAttribArray(m_posAttribute);
 
         m_uvBuffer.reset(new RenderBuffer(m_attributeBuffers[2], RenderBufferDataType::kUVBuffer));
         m_uvBuffer->Bind();
 
         // tell opengl that this uv buffer maps to "uv" attribute
-        unsigned int uv_position = m_meshShader.GetAttribute("uv");
-        glVertexAttribPointer(uv_position, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0 /*offset*/);
-        glEnableVertexAttribArray(uv_position);
+        m_uvAttribute = m_meshShader.GetAttribute("uv");
+        glVertexAttribPointer(m_uvAttribute, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0 /*offset*/);
+        glEnableVertexAttribArray(m_uvAttribute);
 
-        //m_normalBuffer.reset(new RenderBuffer(m_attributeBuffers[3], RenderBufferDataType::kNormalBuffer));
-        //m_normalBuffer->Bind();
+        m_normalBuffer.reset(new RenderBuffer(m_attributeBuffers[3], RenderBufferDataType::kNormalBuffer));
+        m_normalBuffer->Bind();
 
         // tell opengl that this normal buffer maps to "normal" attribute
-        // int normal_position = m_meshShader.GetAttribute("normal");
-       // glVertexAttribPointer(normal_position, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0 /*offset*/);
-       // glEnableVertexAttribArray(normal_position);
+        m_normalAttribute = m_meshShader.GetAttribute("normal");
+        glVertexAttribPointer(m_normalAttribute, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0 /*offset*/);
+        glEnableVertexAttribArray(m_normalAttribute);
 
-        //GLfloat vertexData[] =
-        //{
-        //    -0.5f, -0.5f, 0,
-        //     0.5f, -0.5f, 0,
-        //     0.5f,  0.5f, 0,
-        //    -0.5f,  0.5f, 0
-        //};
+        //m_boneIDBuffer.reset(new RenderBuffer(m_attributeBuffers[4], RenderBufferDataType::kBoneIdBuffer));
 
-        ////IBO data
-        //GLuint indexData[] = { 0, 1, 2, 3 };
-        //m_numVertices = 4;
-        //m_numIndices = 4;
-        //m_vertexBuffer.SetData(RenderBufferDataType::VERTEX_BUFFER, (void*)vertexData, 3 * 4 * sizeof(float));
-        //m_indexBuffer.SetData(RenderBufferDataType::INDEX_BUFFER, (void*)indexData, 4 * sizeof(int));
+        //m_boneIdAttribute = m_meshShader.GetAttribute("boneIDs");
+        //glVertexAttribIPointer(m_boneIdAttribute, kMaxNumBonesPerVertex, GL_INT, sizeof(VertexBoneData), (const GLvoid*) 0/*offset*/);
+        //glEnableVertexAttribArray(m_boneIdAttribute);
+        //
+        //m_boneWeightBuffer.reset(new RenderBuffer(m_attributeBuffers[5], RenderBufferDataType::kBoneWeightBuffer));
 
-        //setup->m_vertexBuffer.SetData(RenderBufferDataType::kVertexBuffer, (void*)&vertices[0], 3 * setup->m_numVertices * sizeof(float));
-
-
-        //setup->m_indexBuffer.SetData(RenderBufferDataType::kIndexBuffer, (void*)&indices[0], setup->m_numIndices * sizeof(int));
-
-       // auto& uvs = mesh->UV();
-        //setup->m_numUVs = uvs.size();
-        //setup->m_uvBuffer.SetData(RenderBufferDataType::kUVBuffer, (void*)&uvs[0], 2 * setup->m_numUVs * sizeof(float));
-
+        //m_boneWeightAttribute = m_meshShader.GetAttribute("boneWeights");
+        //glVertexAttribPointer(m_boneWeightAttribute, kMaxNumBonesPerVertex, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData),
+        //    (const GLvoid*)(kMaxNumBonesPerVertex * sizeof(int32_t)));
+        //glEnableVertexAttribArray(m_boneWeightAttribute);
 
         glBindVertexArray(0);
     }
@@ -124,5 +122,15 @@ namespace loopxia
     RenderBuffer* MeshRendererShader::GetUVBuffer()
     {
         return m_uvBuffer.get();
+    }
+
+    RenderBuffer* MeshRendererShader::GetBoneIdBuffer()
+    {
+        return m_boneIDBuffer.get();
+    }
+
+    RenderBuffer* MeshRendererShader::GetBoneWeightBuffer()
+    {
+        return m_boneWeightBuffer.get();
     }
 }

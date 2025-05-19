@@ -35,6 +35,9 @@ namespace loopxia
                     break;
                 case RenderBufferDataType::kVertexBuffer:
                 case RenderBufferDataType::kUVBuffer:
+                case RenderBufferDataType::kNormalBuffer:
+                case RenderBufferDataType::kBoneIdBuffer:
+                case RenderBufferDataType::kBoneWeightBuffer:
                     m_glDataType = GL_ARRAY_BUFFER;
                     break;
                 }
@@ -47,7 +50,7 @@ namespace loopxia
                 }
             }
 
-            void SetData(RenderBufferDataType dataType, void* data, size_t dataSize)
+            void SetData(void* data, size_t dataSize)
             {
                 //if (m_bGenerated) {
                 //    glDeleteBuffers(1, &m_bufferId);
@@ -86,9 +89,9 @@ namespace loopxia
         delete m_impl;
     }
 
-    void RenderBuffer::SetData(RenderBufferDataType dataType, void* data, size_t dataSize)
+    void RenderBuffer::SetData(void* data, size_t dataSize)
     {
-        m_impl->SetData(dataType, data, dataSize);
+        m_impl->SetData(data, dataSize);
     }
 
     void RenderBuffer::Bind()

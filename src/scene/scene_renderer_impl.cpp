@@ -63,7 +63,9 @@ namespace loopxia
             }
         }
 
-        m_pMeshRenderer->UpdateBuffer();
+        if (bHasNewMesh) {
+            m_pMeshRenderer->UpdateBuffer();
+        }
     }
 
     SceneRenderer* CreateSceneRenderer()

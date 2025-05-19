@@ -12,6 +12,22 @@ namespace loopxia
 {
     namespace impl
     {
+        // Your debug callback
+        //void GLAPIENTRY openglDebugCallback(GLenum source,
+        //    GLenum type,
+        //    GLuint id,
+        //    GLenum severity,
+        //    GLsizei length,
+        //    const GLchar* message,
+        //    const void* userParam)
+        //{
+        //    Log "OpenGL Debug Message [" << id << "]: " << message << std::endl;
+
+        //    if (type == GL_DEBUG_TYPE_ERROR) {
+        //        std::cerr << "** GL ERROR **" << std::endl;
+        //    }
+        //}
+
         class WindowImpl
         {
         public:
@@ -21,10 +37,25 @@ namespace loopxia
                 int height = 480;
 
                 float x, y;
-                
+
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+
+                // Optional: core profile
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
                 SDL_GetGlobalMouseState(&x, &y);
                 SDL_Point mousePt = { (int)x, (int)y };
-                
+
+                //glEnable(GL_DEBUG_OUTPUT);
+                //glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // Optional: ensures callback is in same thread
+
+                //glDebugMessageCallback(openglDebugCallback, nullptr);
+
+                //// Optional: control message types (filter out notifications, for example)
+                //glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION,
+                //    0, nullptr, GL_FALSE);
+
                 auto displayId = SDL_GetDisplayForPoint(&mousePt);
                 auto dm = SDL_GetCurrentDisplayMode(displayId);
                 if (!dm) {
@@ -34,15 +65,15 @@ namespace loopxia
                     height = dm->h * 0.9;
                 }
 
+                if (SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1) < 0) {
+                    LogError(std::format("Warning: Unable to set double buffering: {}", SDL_GetError()));
+                }
+
                 m_pWindow = SDL_CreateWindow(title.c_str(), width, height,  SDL_WINDOW_OPENGL |
                     SDL_WINDOW_RESIZABLE |  SDL_WINDOW_MAXIMIZED);
 
                 if (!m_pWindow) {
                     LogError(std::string("Failed to create window ") + SDL_GetError());
-                }
-
-                if (SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1) < 0) {
-                    LogError(std::format("Warning: Unable to set double buffering: {}", SDL_GetError()));
                 }
 
                 m_glContext = SDL_GL_CreateContext(m_pWindow); 
