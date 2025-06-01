@@ -4,6 +4,7 @@
 #include <string>
 #include <fstream>
 #include <streambuf>
+#include <vector>
 
 #include <GL/glew.h> // opengl extension
 #include <SDL3/SDL_opengl.h>
@@ -153,6 +154,26 @@ namespace loopxia
                     LogError(std::format("Error linking program {}!", m_programID));
                     printProgramLog(m_programID);
                 }
+                else {
+                    GLint numAttributes = 0;
+                    glGetProgramiv(m_programID, GL_ACTIVE_ATTRIBUTES, &numAttributes);
+
+                    GLint maxNameLength = 0;
+                    glGetProgramiv(m_programID, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxNameLength);
+
+                    std::vector<char> nameData(maxNameLength);
+
+                    for (GLint i = 0; i < numAttributes; ++i) {
+                        GLsizei length = 0;
+                        GLint size = 0;
+                        GLenum type = 0;
+
+                        glGetActiveAttrib(m_programID, i, maxNameLength, &length, &size, &type, &nameData[0]);
+
+                        std::string name(nameData.data(), length);
+                        LogInfo("Attribute #{} : {}",i , name );
+                    }
+                }
             }
             
             void SetVertexPointer(const std::string& attribute, uint8_t size /* size of time */,
@@ -166,13 +187,20 @@ namespace loopxia
 
             int GetAttribute(const std::string& attribute)
             {
-                return glGetAttribLocation(m_programID, attribute.c_str());
+                auto attributeLoc = glGetAttribLocation(m_programID, attribute.c_str());
+                if (attributeLoc == -1) {
+                    LogError("Unable to get shader attribute location: {}", attribute);
+                }
+                return attributeLoc;
             }
 
             int GetUniformLocation(const std::string& attributeName)
             {
-                return glGetUniformLocation(m_programID, attributeName.c_str());
-
+                auto uniformLoc = glGetUniformLocation(m_programID, attributeName.c_str());
+                if (uniformLoc == -1) {
+                    LogError("Unable to get shader uniform location: {}", attributeName);
+                }
+                return uniformLoc;
             }
         protected:
             GLuint m_programID = 0;

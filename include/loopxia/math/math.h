@@ -53,6 +53,8 @@ namespace loopxia
 
         Quaternion QuaternionIdentity();
         Quaternion QuaternionFrom(const Vector3& a, const Vector3& b);
+
+        Matrix4x4 Inverse(const Matrix4x4& m);
     };
 
 }

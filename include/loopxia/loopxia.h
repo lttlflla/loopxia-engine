@@ -5,6 +5,8 @@
 #include "loopxia/ui.h"
 #include "loopxia/event.h"
 
+#include "loopxia/bounding_volume/bounding_volume.h"
+
 #include "loopxia/render/shader.h"
 #include "loopxia/render/render_buffer.h"
 #include "loopxia/render/mesh_renderer.h"

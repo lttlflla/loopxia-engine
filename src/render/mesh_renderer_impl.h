@@ -5,7 +5,9 @@
 #include "loopxia/render/shader.h"
 #include "loopxia/render/render_buffer.h"
 #include "mesh_render_setup.h"
-#include "mesh_renderer_shader.h"
+#include "mesh_shader_animated.h"
+#include "mesh_shader_static.h"
+#include "../resource/mesh_impl.h"
 #include <GL/glew.h>
 #include <map>
 
@@ -23,12 +25,21 @@ namespace loopxia
         void SetAnimation(AnimationState& state) override;
         AnimationState GetAnimationState() const override;
 
+        void EvaluateAnimation() override;
+
+        void SetBoneTransformations(const std::vector<Matrix4x4>& boneTransformations) override;
+        std::vector<Matrix4x4> GetBoneTransformations() const override;
+
         std::shared_ptr<Mesh> GetMesh() override;
 
     private:
         int m_instanceId;
         int m_drawCommandIndex;
+        
         Matrix4x4 m_worldMatrix;
+        // if instancing, it should be 
+
+        std::vector<Matrix4x4> m_boneTransformations;
         AnimationState m_animationState;
 
         MeshRendererImpl* m_pRenderer = nullptr;
@@ -47,7 +58,6 @@ namespace loopxia
         MeshRenderInstance* AddMesh(const std::shared_ptr<Mesh> mesh) override;
         void RemoveMesh(MeshRenderInstance* instance) override;
 
-        // for animation based on animation data in the mesh
         void Render(MeshRenderInstance* instance, Matrix4x4 vpMatrix) override;
 
         void Init();
@@ -64,23 +74,21 @@ namespace loopxia
     private:
         bool m_bInitialized = false;
 
+        // all meshes's vertex indices
         std::vector<int> m_indices;
 
         // buffer for all vertices attributes
         std::vector<Vector3> m_vertices;
         std::vector<Vector3> m_normals;
         std::vector<Vector2> m_uvs;
-        
-        std::vector<VertexBoneData> m_boneData;
+        std::vector<VertexBoneData> m_boneWeightByVertex;
 
-        //GLuint m_colorsBuffer = 0;
-        //GLuint m_diffuseMapBuffer = 0;
-        //GLuint m_normalMapBuffer = 0;
 
         std::map<std::shared_ptr<Mesh>, MeshRenderSetup> m_meshToSetupMap;
 
         bool m_bUseIndirectRender = false;
 
-        MeshRendererShader m_shader;
+        //MeshShaderStatic m_staticMeshShader;
+        MeshShaderAnimated m_animatedMeshShader;
     };
 }

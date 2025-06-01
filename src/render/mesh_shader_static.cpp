@@ -1,21 +1,18 @@
-#include "mesh_renderer_shader.h"
+#include "mesh_shader_static.h"
 #include <glm/gtc/type_ptr.hpp>
 #include "mesh_render_setup.h"
+#include "../resource/mesh_impl.h"
 
 namespace loopxia
 {
-    MeshRendererShader::MeshRendererShader(const std::string& shaderFileVS, const std::string& shaderFileFS)
+    MeshShaderStatic::MeshShaderStatic(const std::string& shaderFileVS, const std::string& shaderFileFS)
     {
         m_meshShader.LoadFromFile(shaderFileVS, Shader::ShaderType::kVertex);
         m_meshShader.LoadFromFile(shaderFileFS, Shader::ShaderType::kFragment);
         m_meshShader.Link();
-
-        m_meshShader.Begin();
-        SetupShaderBuffers(); 
-        m_meshShader.End();
     }
 
-    void MeshRendererShader::BeginRender()
+    void MeshShaderStatic::BeginRender()
     {
         static bool bCalled = false;
         m_meshShader.Begin();
@@ -27,24 +24,24 @@ namespace loopxia
         }
     }
 
-    void MeshRendererShader::EndRender()
+    void MeshShaderStatic::EndRender()
     {
         m_meshShader.End();
         glBindVertexArray(0);
     }
 
-    void MeshRendererShader::SetTextureId(GLuint textureId)
+    void MeshShaderStatic::SetTextureId(GLuint textureId)
     {
         if (m_textureAttribute == -1) {
             m_textureAttribute = m_meshShader.GetUniformLocation("textureSampler");
         }
-        
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureId);
         glUniform1i(m_textureAttribute, 0);
     }
 
-    void MeshRendererShader::SetWVP(Matrix4x4 matrix)
+    void MeshShaderStatic::SetWVP(Matrix4x4 matrix)
     {
         if (m_wvpAttribute == -1) {
             m_wvpAttribute = m_meshShader.GetUniformLocation("gWvp");
@@ -53,8 +50,10 @@ namespace loopxia
         glUniformMatrix4fv(m_wvpAttribute, 1, GL_FALSE /*whether transposed*/, glm::value_ptr(matrix));
     }
 
-    void MeshRendererShader::SetupShaderBuffers()
+    void MeshShaderStatic::SetupShaderBuffers()
     {
+        m_meshShader.Begin();
+
         glGenVertexArrays(1, &m_VAO);
         glBindVertexArray(m_VAO);
 
@@ -88,49 +87,28 @@ namespace loopxia
         glVertexAttribPointer(m_normalAttribute, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0 /*offset*/);
         glEnableVertexAttribArray(m_normalAttribute);
 
-        //m_boneIDBuffer.reset(new RenderBuffer(m_attributeBuffers[4], RenderBufferDataType::kBoneIdBuffer));
-
-        //m_boneIdAttribute = m_meshShader.GetAttribute("boneIDs");
-        //glVertexAttribIPointer(m_boneIdAttribute, kMaxNumBonesPerVertex, GL_INT, sizeof(VertexBoneData), (const GLvoid*) 0/*offset*/);
-        //glEnableVertexAttribArray(m_boneIdAttribute);
-        //
-        //m_boneWeightBuffer.reset(new RenderBuffer(m_attributeBuffers[5], RenderBufferDataType::kBoneWeightBuffer));
-
-        //m_boneWeightAttribute = m_meshShader.GetAttribute("boneWeights");
-        //glVertexAttribPointer(m_boneWeightAttribute, kMaxNumBonesPerVertex, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData),
-        //    (const GLvoid*)(kMaxNumBonesPerVertex * sizeof(int32_t)));
-        //glEnableVertexAttribArray(m_boneWeightAttribute);
-
         glBindVertexArray(0);
+
+        m_meshShader.End();
     }
-    
-    RenderBuffer* MeshRendererShader::GetIndexBuffer()
+
+    RenderBuffer* MeshShaderStatic::GetIndexBuffer()
     {
         return m_indexBuffer.get();
     }
 
-    RenderBuffer* MeshRendererShader::GetVertexBuffer()
+    RenderBuffer* MeshShaderStatic::GetVertexBuffer()
     {
         return m_vertexBuffer.get();
     }
 
-    RenderBuffer* MeshRendererShader::GetNormalBuffer()
+    RenderBuffer* MeshShaderStatic::GetNormalBuffer()
     {
         return m_normalBuffer.get();
     }
 
-    RenderBuffer* MeshRendererShader::GetUVBuffer()
+    RenderBuffer* MeshShaderStatic::GetUVBuffer()
     {
         return m_uvBuffer.get();
-    }
-
-    RenderBuffer* MeshRendererShader::GetBoneIdBuffer()
-    {
-        return m_boneIDBuffer.get();
-    }
-
-    RenderBuffer* MeshRendererShader::GetBoneWeightBuffer()
-    {
-        return m_boneWeightBuffer.get();
     }
 }

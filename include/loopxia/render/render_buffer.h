@@ -17,8 +17,7 @@ namespace loopxia
         kIndexBuffer,
         kUVBuffer,
         kNormalBuffer,
-        kBoneIdBuffer,
-        kBoneWeightBuffer
+        kBoneBuffer,
     };
 
     class RenderBuffer

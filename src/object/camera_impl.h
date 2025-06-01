@@ -8,7 +8,7 @@ namespace loopxia
     class CameraImpl : public virtual MovableObjectImpl<Camera>
     {
     public:
-        CameraImpl(const glm::vec3& position, float fov, float aspectRatio, float nearClip, float farClip);
+        CameraImpl(const glm::vec3& position, float fov /* degrees */, float aspectRatio, float nearClip, float farClip);
         
         Vector3 GetPosition() const override;
         void SetPosition(const Vector3& pos) override;
@@ -16,6 +16,8 @@ namespace loopxia
         Matrix4x4 GetProjectionMatrix() const override;
         Matrix4x4 GetViewMatrix() const override;
         void SetLookDirection(const Vector3& dir) override;
+        
+        void LookAtAndFitScreen(BoundingVolume& v) override;
 
     protected:
         void UpdateProjectionMatrix();
@@ -26,8 +28,8 @@ namespace loopxia
         Vector3 m_position;
         Vector3 m_lookAtDir;
         Vector3 m_up;
-        float m_fov;
-        float m_aspectRatio;
+        float m_fov; // vertical fov in degrees
+        float m_aspectRatio; // aspect ratio. width / height
         float m_nearClip;
         float m_farClip;
         Matrix4x4 projectionMatrix;

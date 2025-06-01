@@ -32,7 +32,7 @@ namespace loopxia
 
     }
 
-    void LogDebug(const std::string& str)
+    void LogDebugImpl(const std::string& str)
     {
         auto strCopy = str;
         trim(strCopy);
@@ -44,7 +44,7 @@ namespace loopxia
         std::cout << strCopy;
     }
 
-    void LogInfo(const std::string& str)
+    void LogInfoImpl(const std::string& str)
     {
         auto strCopy = str;
         trim(strCopy);
@@ -56,7 +56,7 @@ namespace loopxia
         std::cout << strCopy;
     }
 
-    void LogError(const std::string& str)
+    void LogErrorImpl(const std::string& str)
     {
         auto strCopy = str;
         trim(strCopy);

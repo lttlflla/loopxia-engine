@@ -1,3 +1,7 @@
+#pragma once
+
+#include <vector>
+#include <string>
 
 namespace loopxia
 {
@@ -10,5 +14,6 @@ namespace loopxia
         virtual void SetOffsetMatrix(Matrix4x4 matrix) = 0;
         virtual std::string Name() = 0;
         virtual Matrix4x4 OffsetMatrix() = 0;
+        virtual std::vector<Bone*> Children() = 0;
     };
 }

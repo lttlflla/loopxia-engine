@@ -8,13 +8,16 @@
 
 namespace loopxia
 {
-    const int kNumOfBuffers = 6;
-    class MeshRendererShader
+    class MeshShaderStatic
     {
-    public:
-        MeshRendererShader(const std::string& shaderFileVS, const std::string& shaderFileFS);
+    protected:
+        const static int kNumOfBuffers = 6;
 
-        void SetupShaderBuffers();
+    public:
+        MeshShaderStatic(const std::string& shaderFileVS, const std::string& shaderFileFS);
+        virtual ~MeshShaderStatic() = default;
+
+        virtual void SetupShaderBuffers();
 
         void BeginRender();
         void EndRender();
@@ -27,10 +30,7 @@ namespace loopxia
         RenderBuffer* GetNormalBuffer();
         RenderBuffer* GetUVBuffer();
 
-        RenderBuffer* GetBoneIdBuffer();
-        RenderBuffer* GetBoneWeightBuffer();
-
-    private:
+    protected:
         // shader for the renderer
         Shader m_meshShader;
 
@@ -44,16 +44,10 @@ namespace loopxia
         std::unique_ptr<RenderBuffer> m_normalBuffer;
         std::unique_ptr<RenderBuffer> m_uvBuffer;
 
-        std::unique_ptr<RenderBuffer> m_boneIDBuffer;
-        std::unique_ptr<RenderBuffer> m_boneWeightBuffer;
-
         int m_posAttribute = -1;
         int m_uvAttribute = -1;
         int m_normalAttribute = -1;
         int m_textureAttribute = -1;
-
-        int m_boneIdAttribute = -1;
-        int m_boneWeightAttribute = -1;
 
         int m_wvpAttribute = -1;
     };

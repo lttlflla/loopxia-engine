@@ -35,11 +35,31 @@ namespace loopxia
 
     void MeshRenderInstanceImpl::SetAnimation(AnimationState& state)
     {
+        m_animationState = state;
     }
 
     AnimationState MeshRenderInstanceImpl::GetAnimationState() const
     {
         return m_animationState;
+    }
+
+    void MeshRenderInstanceImpl::SetBoneTransformations(const std::vector<Matrix4x4>& boneTransformations)
+    {
+        m_boneTransformations = boneTransformations;
+    }
+
+    void MeshRenderInstanceImpl::EvaluateAnimation()
+    {
+        if (m_animationState.animationIndex1 < 0) {
+            return;
+        }
+
+        m_boneTransformations = m_pMesh->GetBoneTransformations(m_animationState.animationIndex1, m_animationState.animTime);
+    }
+
+    std::vector<Matrix4x4> MeshRenderInstanceImpl::GetBoneTransformations() const
+    {
+        return m_boneTransformations;
     }
 
     std::shared_ptr<Mesh> MeshRenderInstanceImpl::GetMesh()
@@ -48,8 +68,11 @@ namespace loopxia
     }
 
     MeshRendererImpl::MeshRendererImpl() :
-        m_shader("assets/shaders/mesh.vs", "assets/shaders/mesh.fs")
+        //m_staticMeshShader("assets/shaders/static_mesh.vs", "assets/shaders/static_mesh.fs")
+        m_animatedMeshShader("assets/shaders/animated_mesh.vs", "assets/shaders/animated_mesh.fs")
     {
+        //m_staticMeshShader.SetupShaderBuffers();
+        m_animatedMeshShader.SetupShaderBuffers();
     }
 
     void MeshRendererImpl::p_LoadTexture(const std::shared_ptr<Mesh> mesh, MeshRenderSetup* setup)
@@ -57,9 +80,10 @@ namespace loopxia
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
         int width, height, channels;
-        unsigned char* image = stbi_load(mesh->GetMaterial()->GetTextureFilePath().c_str(), &width, &height, &channels, STBI_rgb_alpha);
+        std::string imageFilePath = mesh->GetMaterial()->GetTextureFilePath();
+        unsigned char* image = stbi_load(imageFilePath.c_str(), &width, &height, &channels, STBI_rgb_alpha);
         if (!image) {
-            LogError("Failed to load image");
+            LogError("Failed to load image {}", imageFilePath);
             return;
         }
 
@@ -131,8 +155,12 @@ namespace loopxia
             auto& uvs = mesh->UV();
             m_uvs.insert(m_uvs.end(), uvs.begin(), uvs.end());
 
-            // bone data
+            auto& normals = mesh->Normals();
+            m_normals.insert(m_normals.end(), normals.begin(), normals.end());
 
+            // bone data
+            auto& boneWeights = mesh->BoneWeights();
+            m_boneWeightByVertex.insert(m_boneWeightByVertex.end(), boneWeights.begin(), boneWeights.end());
         }
 
         auto instanceId = (int)setup->m_instances.size();
@@ -160,55 +188,52 @@ namespace loopxia
 
     void MeshRendererImpl::Render(MeshRenderInstance* instance, Matrix4x4 vpMatrix)
     {
-        // bind the shader program
-        m_shader.BeginRender();
-
        // auto mvp = vpMatrix * instance->GetWorldMatrix();
-        m_shader.SetWVP(vpMatrix);
+        m_animatedMeshShader.SetWVP(vpMatrix);
+        
+        auto pMesh = instance->GetMesh();
+        if(auto it = m_meshToSetupMap.find(pMesh);
+            it != m_meshToSetupMap.end()) {
+            auto& setup = it->second;
+            auto start = std::chrono::high_resolution_clock::now();
+            m_animatedMeshShader.SetTextureId(setup.m_textureID);
+            
+            auto animState = instance->GetAnimationState();
+            animState.animationIndex1 = 0;
+            animState.animTime += 0.03;
+            instance->SetAnimation(animState);
 
-        if (m_bUseIndirectRender) {
+            instance->EvaluateAnimation();
+            
+            auto boneTransformation = instance->GetBoneTransformations();
+            m_animatedMeshShader.SetBoneTransformations(boneTransformation);
 
-        } else {
-            // set active texture
-            //glActiveTexture(GL_TEXTURE0);
+            glDrawElementsBaseVertex(GL_TRIANGLES,
+                setup.m_numIndices,
+                GL_UNSIGNED_INT,
+                (void*)(sizeof(unsigned int) * setup.m_baseIndex),
+                setup.m_baseVertex);
 
-            for (auto& m : m_meshToSetupMap) {
-                auto start = std::chrono::high_resolution_clock::now();
-                m_shader.SetTextureId(m.second.m_textureID);
-
-                auto& setup = m.second;
-
-                for (auto& instance : m.second.m_instances) {
-                    glDrawElementsBaseVertex(GL_TRIANGLES,
-                        setup.m_numIndices,
-                        GL_UNSIGNED_INT,
-                        (void*)(sizeof(unsigned int) * setup.m_baseIndex),
-                        setup.m_baseVertex);
-                }
-                auto end = std::chrono::high_resolution_clock::now();
-                // Compute duration in milliseconds
-                std::chrono::duration<double, std::milli> duration = end - start;
-                if (duration.count() > 100) {
-                    int a = 0;
-                    int b = a;
-                }
-                //LogInfo(std::format("render {}", duration.count()));
+            auto end = std::chrono::high_resolution_clock::now();
+            // Compute duration in milliseconds
+            std::chrono::duration<double, std::milli> duration = end - start;
+            if (duration.count() > 100) {
+                int a = 0;
+                int b = a;
             }
+            //LogInfo(std::format("render {}", duration.count()));
         }
-
-
-
-        //m_wvp = vpMatrix;
-        m_shader.EndRender();
     }
 
     void MeshRendererImpl::BeginRender()
     {
-
+        // bind the shader program
+        m_animatedMeshShader.BeginRender();
     }
 
     void MeshRendererImpl::EndRender()
     {
+        m_animatedMeshShader.EndRender();
     }
 
     void MeshRendererImpl::Init()
@@ -234,16 +259,15 @@ namespace loopxia
     void MeshRendererImpl::UpdateBuffer()
     {
         //IBO data
-        m_shader.BeginRender();
-        m_shader.GetIndexBuffer()->SetData((void*)m_indices.data(), m_indices.size() * sizeof(int));
-        m_shader.GetVertexBuffer()->SetData((void*)m_vertices.data(), 3 * m_vertices.size() * sizeof(float));
+        m_animatedMeshShader.BeginRender();
 
-        m_shader.GetUVBuffer()->SetData((void*)m_uvs.data(), 2 * m_uvs.size() * sizeof(float));
-        m_shader.GetNormalBuffer()->SetData((void*)m_normals.data(), 3 * m_normals.size() * sizeof(float));
+        m_animatedMeshShader.GetIndexBuffer()->SetData((void*)m_indices.data(), m_indices.size() * sizeof(int));
+        m_animatedMeshShader.GetVertexBuffer()->SetData((void*)m_vertices.data(), m_vertices.size() * 3 * sizeof(float));
+        m_animatedMeshShader.GetUVBuffer()->SetData((void*)m_uvs.data(), m_uvs.size() * 2 * sizeof(float));
+        m_animatedMeshShader.GetNormalBuffer()->SetData((void*)m_normals.data(), m_normals.size() * 3 * sizeof(float));
+        m_animatedMeshShader.GetBoneBuffer()->SetData((void*)m_boneWeightByVertex.data(), m_boneWeightByVertex.size() * sizeof(VertexBoneData));
 
-        m_shader.EndRender();
-        
-
+        m_animatedMeshShader.EndRender();
     }
 
     MeshRenderer* CreateMeshRenderer()

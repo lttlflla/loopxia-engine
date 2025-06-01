@@ -8,9 +8,10 @@ namespace loopxia
     struct AnimationState
     {
         // animationIndex, can be -1 to indicate no animation
-        int animationIndex1;
-        int animationIndex2;
-        float progress;
+        int animationIndex1 = -1;
+        int animationIndex2 = -1;
+        // if animationIndex2 is not -1 it means animating between two different animation
+        double animTime = 0;  //
     };
 
     class MeshRenderInstance
@@ -24,9 +25,12 @@ namespace loopxia
         virtual void SetAnimation(AnimationState& state) = 0;
         virtual AnimationState GetAnimationState() const = 0;
 
-        virtual std::shared_ptr<Mesh> GetMesh() = 0;
+        virtual void EvaluateAnimation() = 0;
 
-        // TODO add set bone matrix
+        virtual void SetBoneTransformations(const std::vector<Matrix4x4>& boneTransformations) = 0;
+        virtual std::vector<Matrix4x4> GetBoneTransformations() const = 0;
+
+        virtual std::shared_ptr<Mesh> GetMesh() = 0;
     };
 
     class MeshRenderer
@@ -44,7 +48,6 @@ namespace loopxia
         virtual MeshRenderInstance* AddMesh(const std::shared_ptr<Mesh> mesh) = 0;
         virtual void RemoveMesh(MeshRenderInstance* instance) = 0;
 
-        // for animation based on animation data in the mesh
         virtual void Render(MeshRenderInstance* instance, Matrix4x4 vpMatrix) = 0;
 
         // for dynamic animation whereby the bones are controlled dynamically

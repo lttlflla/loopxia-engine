@@ -240,4 +240,14 @@ namespace loopxia
 
         return BoundingVolume(minAABB, maxAABB, q);
     }
+
+    Vector3 BoundingVolume::MinAABB()
+    {
+        return _aabbMin;
+    }
+
+    Vector3 BoundingVolume::MaxAABB()
+    {
+        return _aabbMax;
+    }
 }

@@ -14,7 +14,11 @@ namespace loopxia
 
         BoundingVolume(Vector3 minAabb, Vector3 maxAabb, Quaternion rotation);
 
+        Vector3 MinAABB();
+        Vector3 MaxAABB();
+
         bool Intersects(const BoundingVolume& v) const;
+
         static BoundingVolume UnionAtoB(const BoundingVolume& a, const BoundingVolume& b);
         static BoundingVolume Union(const BoundingVolume& a, const BoundingVolume& b);
 

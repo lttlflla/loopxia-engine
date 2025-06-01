@@ -34,9 +34,11 @@ namespace loopxia
             }
 
             glEnable(GL_DEBUG_OUTPUT);
-            glDebugMessageCallback([](GLenum, GLenum, GLuint, GLenum severity, GLsizei, const GLchar* message, const void*) {
-                LogError( std::format("OpenGL: {}", (std::string)message));
+            glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei, const GLchar* message, const void*) {
+                LogError( std::format("OpenGL: {} {} {}", source, type, (std::string)message));
                 }, nullptr);
+
+
             auto  resizeFunc = [this](Event& evt, WindowDetails& details, int w, int h) -> bool {
                 _resize(w, h);
                 return true;

@@ -23,38 +23,4 @@ namespace loopxia
     };
     
 
-    const int kMaxNumBonesPerVertex = 4;
-    struct VertexBoneData
-    {
-        uint32_t boneIDs[kMaxNumBonesPerVertex] = { 0 };
-        float weights[kMaxNumBonesPerVertex] = { 0.0f };
-        int index = 0;  // slot for the next update
-
-        VertexBoneData()
-        {
-        }
-
-        void AddBoneData(uint32_t boneID, float weight)
-        {
-            for (int i = 0; i < index; i++) {
-                if (boneIDs[i] == boneID) {
-                    return;
-                }
-            }
-
-            if (weight == 0.0f) {
-                return;
-            }
-
-            if (index == kMaxNumBonesPerVertex) {
-                return;
-                assert(0);
-            }
-
-            boneIDs[index] = boneID;
-            weights[index] = weight;
-
-            index++;
-        }
-    };
 }

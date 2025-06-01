@@ -77,5 +77,10 @@ namespace loopxia
             float angle = glm::angle(a, b);
             return glm::angleAxis(angle, glm::normalize(axis));
         }
+
+        Matrix4x4 Inverse(const Matrix4x4& m)
+        {
+            return glm::inverse(m);
+        }
     }
 }

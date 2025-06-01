@@ -93,6 +93,8 @@ add_library (loopxia-engine
 "src/render/shader.cpp" 
 "src/render/render_buffer.cpp" 
 "src/render/mesh_renderer_impl.cpp"
+"src/render/mesh_shader_static.cpp"
+"src/render/mesh_shader_animated.cpp"
 "src/editor/editor.cpp" 
 
 "src/object/camera_impl.h" 
@@ -122,7 +124,6 @@ add_library (loopxia-engine
 "src/game/camera_controller_impl.cpp"
 "src/render/mesh_renderer_indirect.h" 
 "src/render/mesh_renderer_indirect.cpp"
-"src/render/mesh_renderer_shader.cpp"
 )
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)

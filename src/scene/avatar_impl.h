@@ -21,6 +21,8 @@ namespace loopxia
         // multiple avatar can reference to the same mesh
         std::shared_ptr<Mesh> m_mesh;
 
+        // map of bone name to scene node
+        //std::unordered_map<std::string, > m_
         // reference to 
     };
 }

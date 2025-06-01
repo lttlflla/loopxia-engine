@@ -36,8 +36,7 @@ namespace loopxia
                 case RenderBufferDataType::kVertexBuffer:
                 case RenderBufferDataType::kUVBuffer:
                 case RenderBufferDataType::kNormalBuffer:
-                case RenderBufferDataType::kBoneIdBuffer:
-                case RenderBufferDataType::kBoneWeightBuffer:
+                case RenderBufferDataType::kBoneBuffer:
                     m_glDataType = GL_ARRAY_BUFFER;
                     break;
                 }
